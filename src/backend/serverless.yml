@@ -1,0 +1,60 @@
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: ufms-document-bot
+frameworkVersion: "4"
+
+provider:
+  name: aws
+  region: us-east-1
+  stage: dev
+  timeout: 30
+  runtime: python3.12
+  environment: ${file(env.yml):${self:provider.stage}}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - rekognition:SearchFacesByImage
+        - rekognition:DetectFaces
+        - rekognition:CreateCollection
+        - rekognition:IndexFaces
+        - rekognition:ListCollections
+        - rekognition:DeleteCollection
+        - bedrock:InvokeModel
+        - polly:SynthesizeSpeech
+        - lex:RecognizeText
+        - lex:DeleteSession
+        - lex:GetSession
+        - lex:PutSession
+        - s3:GetObject
+        - s3:PutObject
+        - dynamodb:DescribeTable
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:createTable
+        - lambda:InvokeFunction
+        - sqs:SendMessage
+        - sqs:GetQueueUrl
+      Resource: "*"
+
+functions:
+  main:
+    name: ${sls:stage}-main-lambda
+    description: Função responsável por receber requisições do Telegram e disparar lambdas de acordo com o fluxo
+    package:
+      exclude:
+        - ./**
+      include:
+        - functions/main/**
+    layers:
+      #- { Ref: LambdaLayer } # Fix layer ref
+    handler: functions.main.main.main # Create function main in main
+    events:
+      - httpApi:
+          method: POST
+          path: /chatbot
+    environment:
+      API_GATEWAY_URL:
+        Fn::Join:
+          - ""
+          - - "https://"
+            - Ref: HttpApi
