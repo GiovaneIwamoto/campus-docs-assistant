@@ -1,0 +1,4 @@
+Increase Knowledge Base Feature
+To increase the accuracy and relevance of your responses, add a .metadata.json file containing metadata for your data source to your S3 bucket.
+
+Summarization Feature
