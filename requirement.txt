@@ -1,0 +1,3 @@
+pip install requests -t .
+pip install python-dotenv -t .
+pip install python-telegram-bot -t .
