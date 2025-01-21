@@ -1,14 +1,14 @@
-# "service" is the name of this project. This will also be added to your AWS resource names.
-service: ufms-document-bot
-frameworkVersion: "4"
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: gustavo123
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: document-bot
+service: ufms-document-bot  # Nome do serviço (também será utilizado nos recursos da AWS)
 
 provider:
   name: aws
   region: us-east-1
   stage: dev
-  timeout: 30
   runtime: python3.12
-  environment: ${file(env.yml):${self:provider.stage}}
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -37,24 +37,10 @@ provider:
       Resource: "*"
 
 functions:
-  main:
-    name: ${sls:stage}-main-lambda
-    description: Função responsável por receber requisições do Telegram e disparar lambdas de acordo com o fluxo
-    package:
-      exclude:
-        - ./**
-      include:
-        - functions/main/**
-    layers:
-      #- { Ref: LambdaLayer } # Fix layer ref
-    handler: functions.main.main.main # Create function main in main
+  telegramToLex:
+    handler: handler.telegramToLex_handler  # Nome da função handler e seu respectivo método
+    timeout: 30  # Timeout da função (em segundos)
     events:
       - httpApi:
-          method: POST
-          path: /chatbot
-    environment:
-      API_GATEWAY_URL:
-        Fn::Join:
-          - ""
-          - - "https://"
-            - Ref: HttpApi
+          path: /telegram-webhook  # Caminho do webhook para receber a requisição
+          method: post  # Método HTTP para a requisição
