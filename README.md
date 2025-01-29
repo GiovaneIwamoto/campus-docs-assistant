@@ -1,4 +1,4 @@
-# UFMS DOCUMENT BOT
+`# UFMS DOCUMENT BOT
 
 ### **INTRODUÇÃO**
 
@@ -37,6 +37,11 @@ Este projeto visa facilitar o acesso de estudantes da Universidade Federal de Ma
 $ git clone https://github.com/GiovaneIwamoto/ufms-document-bot
 $ cd ufms-document-bot
 $ git checkout main
+```
+
+- Instale as dependências necessárias
+```ruby
+$ pip install -r requirements.txt
 ```
 
 - Configure o framework Serverless e as credenciais AWS.
