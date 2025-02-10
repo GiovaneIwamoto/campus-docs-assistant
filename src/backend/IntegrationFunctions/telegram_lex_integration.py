@@ -102,7 +102,7 @@ def sendToTelegram(message):
         telegram_url = f'https://api.telegram.org/bot{token}/sendMessage'
         payload = {
             'chat_id': message['chatID'],
-            'text': message['text'],
+            'text': message['text']
         }
 
         if message.get('reply_markup'):
