@@ -1,4 +1,4 @@
-# CAMPUS DOCS ASSISTANT
+![banner](https://github.com/user-attachments/assets/7b4565af-c0b4-4bfb-bdaf-9859347b7677)
 
 ### **INTRODUCTION**
 
