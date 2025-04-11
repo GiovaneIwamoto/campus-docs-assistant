@@ -1,3 +1,30 @@
+# Environment files
 .env
-src/backend/.serverless
+
+# Python-related files
+__pycache__/
+*.py[cod]
+
+# macOS system files
 .DS_Store
+
+# Streamlit files
+.streamlit/
+
+# Serverless framework files
+src/backend/.serverless/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Node.js dependencies (if applicable)
+node_modules/
+
+# IDE and editor files
+.vscode/
+.idea/
+
+# Build and distribution directories
+dist/
+build/
