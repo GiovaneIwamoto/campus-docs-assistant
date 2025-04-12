@@ -9,8 +9,8 @@ load_dotenv()
 
 lexruntime = boto3.client("lexv2-runtime")
 
-# Função para reconhecer texto usando Lex
-def recognizeTextWithLex(session_id, text):
+# Function to recognize text using Lex
+def recognize_text_with_lex(session_id, text):
     try:
         response = lexruntime.recognize_text(
             botId=os.getenv('LEX_BOT_ID'),
@@ -21,55 +21,55 @@ def recognizeTextWithLex(session_id, text):
         )
         return response
     except Exception as e:
-        print(f"[ERROR] Erro ao chamar o Lex: {e}")
+        print(f"[ERROR] Error calling Lex: {e}")
         raise
 
-# Função unificada para lidar com interações dos botões
+# Unified function to handle button interactions
 def handle_button_interaction(callback_query, chat_id):
     try:
         callback_data = callback_query.get("data", "")
-        response_text = "Pergunte algo" if callback_data == "Quero fazer uma pergunta" else callback_data
+        response_text = "Ask something" if callback_data == "I want to ask a question" else callback_data
         
-        lex_response = recognizeTextWithLex(chat_id, response_text)
+        lex_response = recognize_text_with_lex(chat_id, response_text)
         
-        messages = mapLexToTelegram(lex_response, {
+        messages = map_lex_to_telegram(lex_response, {
             "message": {
                 "chat": {"id": chat_id}
             }
         })
         
         for message in messages:
-            sendToTelegram(message)
+            send_to_telegram(message)
             
     except Exception as e:
-        print(f"[ERROR] Erro ao tratar a interação com botão: {e}")
+        print(f"[ERROR] Error handling button interaction: {e}")
         error_message = {
             "chatID": chat_id,
-            "text": "Desculpe, ocorreu um erro ao processar sua solicitação."
+            "text": "Sorry, an error occurred while processing your request."
         }
-        sendToTelegram(error_message)
+        send_to_telegram(error_message)
         raise
     
-# Função para mapear respostas do Lex para o Telegram
-def mapLexToTelegram(lex_response, body):
+# Function to map Lex responses to Telegram
+def map_lex_to_telegram(lex_response, body):
     try:
-        chatID = str(body['message']['chat']['id'])
+        chat_id = str(body['message']['chat']['id'])
         messages = []
         
         if not isinstance(lex_response, dict):
-            raise ValueError("Resposta do Lex não está no formato esperado")
+            raise ValueError("Lex response is not in the expected format")
             
         lex_messages = lex_response.get('messages', [])
         if not lex_messages:
             return [{
-                'chatID': chatID,
-                'text': 'Desculpe, não obtive uma resposta válida.'
+                'chatID': chat_id,
+                'text': 'Sorry, I did not get a valid response.'
             }]
 
         for lex_message in lex_messages:
             message = {
-                'chatID': chatID,
-                'text': lex_message.get('content', 'Desculpe, não entendi sua mensagem')
+                'chatID': chat_id,
+                'text': lex_message.get('content', 'Sorry, I did not understand your message')
             }
 
             response_card = lex_message.get('imageResponseCard')
@@ -89,15 +89,15 @@ def mapLexToTelegram(lex_response, body):
 
         return messages
     except Exception as e:
-        print(f"[ERROR] Erro ao mapear resposta do Lex para Telegram: {e}")
+        print(f"[ERROR] Error mapping Lex response to Telegram: {e}")
         raise
 
-# Envia mensagens de texto para o chat do Telegram
-def sendToTelegram(message):
+# Sends text messages to the Telegram chat
+def send_to_telegram(message):
     try:
         token = os.getenv('TELEGRAM_TOKEN')
         if not token:
-            raise ValueError("TELEGRAM_TOKEN não encontrado nas variáveis de ambiente")
+            raise ValueError("TELEGRAM_TOKEN not found in environment variables")
             
         telegram_url = f'https://api.telegram.org/bot{token}/sendMessage'
         payload = {
@@ -113,8 +113,8 @@ def sendToTelegram(message):
         return response.json()
         
     except requests.exceptions.RequestException as e:
-        print(f"[ERROR] Erro na requisição ao Telegram: {e}")
+        print(f"[ERROR] Error in Telegram request: {e}")
         raise
     except Exception as e:
-        print(f"[ERROR] Erro ao enviar mensagem ao Telegram: {e}")
+        print(f"[ERROR] Error sending message to Telegram: {e}")
         raise

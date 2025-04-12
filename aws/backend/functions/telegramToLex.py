@@ -7,107 +7,107 @@ load_dotenv()
 
 lexruntime = boto3.client("lexv2-runtime")
 
-# Função principal que recebe eventos do Telegram, processa a mensagem e interage com o Amazon Lex
+# Main function that receives events from Telegram, processes the message, and interacts with Amazon Lex
 def telegramToLex(event, context):
     try:
-        print(f"[INFO] Evento recebido: {event}")
+        print(f"[INFO] Event received: {event}")
         
         if not event.get('body'):
-            raise ValueError("Corpo do evento está vazio")
+            raise ValueError("Event body is empty")
             
         try:
             body = json.loads(event['body'])
-            print(f"[INFO] Corpo da requisição processado: {body}")
+            print(f"[INFO] Request body processed: {body}")
         except json.JSONDecodeError as e:
-            print(f"[ERROR] Falha ao decodificar JSON do corpo: {e}")
+            print(f"[ERROR] Failed to decode JSON from body: {e}")
             raise
         
-        # Se for uma interação de botão (callback_query), redireciona para a função correspondente
+        # If it's a button interaction (callback_query), redirect to the corresponding function
         if 'callback_query' in body:
             return handle_callback_query(body)
         
-        # Se for uma mensagem de texto, redireciona para a função correspondente
+        # If it's a text message, redirect to the corresponding function
         elif 'message' in body:
             return handle_text_message(body)
         
         else:
-            raise ValueError("Formato de mensagem não reconhecido")
+            raise ValueError("Unrecognized message format")
             
     except Exception as e:
-        print(f"[ERROR] Erro ao processar o evento: {str(e)}")
+        print(f"[ERROR] Error processing the event: {str(e)}")
         return create_response(400, 'Failed to process message')
 
-# Processa interações de botões no Telegram (callback_query)
+# Processes button interactions on Telegram (callback_query)
 def handle_callback_query(body):
     try:
-        print("[INFO] Processando callback_query")
+        print("[INFO] Processing callback_query")
         callback_query = body['callback_query']
         chat_id = str(callback_query['message']['chat']['id']) 
         callback_data = callback_query['data'] 
-        print(f"[INFO] Callback recebido. Chat ID: {chat_id}, Callback Data: {callback_data}")
+        print(f"[INFO] Callback received. Chat ID: {chat_id}, Callback Data: {callback_data}")
         
-        # Chama a função responsável por tratar interações de botões
+        # Calls the function responsible for handling button interactions
         handle_button_interaction(callback_query, chat_id)
         
         return create_response(200, 'Successfully processed callback query')
         
     except Exception as e:
-        print(f"[ERROR] Erro ao processar callback query: {e}")
+        print(f"[ERROR] Error processing callback query: {e}")
         
-        # Tenta enviar uma mensagem de erro ao usuário no Telegram
+        # Attempts to send an error message to the user on Telegram
         try:
             error_message = {
                 "chatID": chat_id,
-                "text": "Desculpe, ocorreu um erro ao processar sua solicitação."
+                "text": "Sorry, an error occurred while processing your request."
             }
             sendToTelegram(error_message)
         except:
             pass  
         raise
 
-# Processa mensagens de texto recebidas pelo bot no Telegram e envia a resposta do Lex ao usuário
+# Processes text messages received by the bot on Telegram and sends Lex's response to the user
 def handle_text_message(body):
     try:
-        print("[INFO] Processando mensagem de texto")
+        print("[INFO] Processing text message")
         message = body['message']
         
         if 'text' not in message:
-            raise ValueError("Mensagem não contém texto")
+            raise ValueError("Message does not contain text")
             
         chat_id = str(message['chat']['id'])  
         text = message['text'] 
-        print(f"[INFO] Mensagem recebida. Chat ID: {chat_id}, Texto: {text}")
+        print(f"[INFO] Message received. Chat ID: {chat_id}, Text: {text}")
         
-        # Envia a mensagem do usuário para o Amazon Lex e obtém a resposta
+        # Sends the user's message to Amazon Lex and gets the response
         lex_response = recognizeTextWithLex(chat_id, text)
-        print(f"[INFO] Resposta do Lex: {lex_response}")
+        print(f"[INFO] Lex response: {lex_response}")
         
-        # Mapeia a resposta do Lex para o formato esperado pelo Telegram
+        # Maps Lex's response to the format expected by Telegram
         messages_for_telegram = mapLexToTelegram(lex_response, body)
-        print(f"[INFO] Mensagens mapeadas para o Telegram: {messages_for_telegram}")
+        print(f"[INFO] Messages mapped for Telegram: {messages_for_telegram}")
         
-        # Envia cada mensagem gerada para o Telegram
+        # Sends each generated message to Telegram
         for msg in messages_for_telegram:
             sendToTelegram(msg)
-        print("[INFO] Mensagens enviadas para o Telegram")
+        print("[INFO] Messages sent to Telegram")
         
         return create_response(200, 'Successfully processed text message')
         
     except Exception as e:
-        print(f"[ERROR] Erro ao processar mensagem de texto: {e}")
+        print(f"[ERROR] Error processing text message: {e}")
         
-        # Tenta enviar uma mensagem de erro ao usuário no Telegram
+        # Attempts to send an error message to the user on Telegram
         try:
             error_message = {
                 "chatID": chat_id,
-                "text": "Desculpe, ocorreu um erro ao processar sua mensagem."
+                "text": "Sorry, an error occurred while processing your message."
             }
             sendToTelegram(error_message)
         except:
             pass  
         raise
 
-# Gera uma resposta HTTP padronizada para ser retornada
+# Generates a standardized HTTP response to be returned
 def create_response(status_code, message):
     return {
         'statusCode': status_code,

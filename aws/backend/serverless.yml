@@ -1,8 +1,8 @@
 # "org" ensures this Service is used with the correct Serverless Framework Access Key.
-org: gustavo123
+org: 
 # "app" enables Serverless Framework Dashboard features and sharing them with other Services.
-app: document-bot
-service: ufms-document-bot  # Nome do serviço (também será utilizado nos recursos da AWS)
+app: docs-assistant
+service: campus-docs-assistant  # Service name
 
 provider:
   name: aws
@@ -38,9 +38,9 @@ provider:
 
 functions:
   telegramToLex:
-    handler: handler.telegramToLex_handler  # Nome da função handler e seu respectivo método
-    timeout: 30  # Timeout da função (em segundos)
+    handler: handler.telegramToLex_handler
+    timeout: 30
     events:
       - httpApi:
-          path: /telegram-webhook  # Caminho do webhook para receber a requisição
-          method: post  # Método HTTP para a requisição
+          path: /telegram-webhook
+          method: post

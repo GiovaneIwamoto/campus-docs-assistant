@@ -1,5 +1,5 @@
 from functions.telegramToLex import telegramToLex
 
-# Definição das funções para o Serverless Framework
+# Define functions for Serverless framework
 def telegramToLex_handler(event, context):
     return telegramToLex(event, context)
