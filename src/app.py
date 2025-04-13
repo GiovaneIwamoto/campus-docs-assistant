@@ -28,14 +28,14 @@ def format_chat_messages(messages: list) -> str:
     return "\n".join(formatted)
 
 # Configure Streamlit page settings
-st.set_page_config(page_title="Capiara Algorithm Mentor", page_icon="", layout="wide")
+st.set_page_config(page_title="Campus Docs Assistant", page_icon="", layout="wide")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s",handlers=[RichHandler(rich_tracebacks=True, markup=True)])
 logger = logging.getLogger(__name__)
 
 # Display image banner
-st.image("images/banner.png")
+#st.image("images/banner.png")
 
 class StreamHandler(BaseCallbackHandler):
     """Handles real-time streaming of LLM-generated tokens in Streamlit."""
@@ -70,7 +70,7 @@ def display_chat_history() -> None:
 # Define the chat prompt template
 prompt_template = ChatPromptTemplate.from_messages(
     [
-        ("system", "You are a helpful assistant that help students solving algorithms problems! Your name is CapIAra."),
+        ("system", "You are a helpful assistant that help users retrieve information about campus documents."),
         MessagesPlaceholder(variable_name="messages"),
     ]
 )
