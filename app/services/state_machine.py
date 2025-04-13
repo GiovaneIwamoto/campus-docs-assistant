@@ -1,11 +1,12 @@
 import streamlit as st
 from config.logging_config import setup_logging
-from core.chat_utils import format_chat_messages
+from utils.chat_utils import format_chat_messages
 from core.handlers import StreamHandler
 from template.prompts import chat_prompt_template
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import StateGraph, START, MessagesState
 from langchain_community.chat_models import ChatMaritalk
+from langchain_community.chat_models.maritalk import MaritalkHTTPError
 from langchain_core.messages import AIMessage, trim_messages
 
 logger = setup_logging()
@@ -46,14 +47,19 @@ def call_model(state: MessagesState) -> dict:
 
     # Stream the response
     with st.chat_message("assistant"):
-        handler = StreamHandler(st.empty())
-        llm.callbacks = [handler]
-
-        response = ""
-        for chunk in llm.stream(prompt):
-            response += chunk.content
-
-        return {"messages": state["messages"] + [AIMessage(content=response)]}
+        try:
+            handler = StreamHandler(st.empty())
+            llm.callbacks = [handler]
+            
+            response = ""
+            for chunk in llm.stream(prompt):
+                response += chunk.content
+            
+            return {"messages": state["messages"] + [AIMessage(content=response)]}
+        
+        except MaritalkHTTPError as e:
+            st.write("Ops, something went wrong.")
+            raise e
 
 # Define the state machine workflow
 workflow = StateGraph(state_schema=MessagesState)
