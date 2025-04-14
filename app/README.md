@@ -8,7 +8,12 @@ This project aims to facilitate access for students of the Federal University of
 
 ---
 
-### **INSTALLATION GUIDE STREAMLIT APP**
+### **INSTALLATION GUIDE**
+
+```ruby
+$ pip install playwright
+$ playwright install 
+```
 
 ```ruby
 $ pip install -r requirements.txt
