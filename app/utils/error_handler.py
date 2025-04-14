@@ -1,15 +1,16 @@
 import time
 import streamlit as st
 from config.logging_config import setup_logging
-from ui.layout import display_chat_history
-from langchain_core.messages import ChatMessage
 
 logger = setup_logging()
 
 def handle_maritalk_error(error: Exception):
     """
-    Handle MaritalkHTTPError by logging the error, displaying a message to the user,
-    and resetting the session state.
+    Handle errors related to the Maritalk API, specifically invalid API keys.
+    This function logs the error and provides feedback to the user.
+    It also clears the chat history and resets the session state.
+    Args:
+        error (Exception): The exception raised by the Maritalk API.
     """
     logger.error(f"API Error: {error}")
 
