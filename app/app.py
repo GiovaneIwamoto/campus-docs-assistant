@@ -16,7 +16,7 @@ def main():
     set_page_config()
     
     # Retrieve API key and indexing mode configuration from the sidebar
-    llm_api_key, indexing_mode_config = configure_sidebar()
+    indexing_mode_config = configure_sidebar()
 
     # Initialize chat history in session state
     initialize_chat_history()
@@ -31,7 +31,7 @@ def main():
 
     # Handle user input
     if prompt := st.chat_input():
-        handle_user_input(prompt, llm_api_key)
+        handle_user_input(prompt)
 
 if __name__ == "__main__":
     main()
