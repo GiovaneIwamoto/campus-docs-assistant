@@ -1,10 +1,25 @@
 def format_chat_messages(messages: list) -> str:
     """
-    Format a list of chat messages into a readable string representation.
-    This function is utilized for debugging purposes to provide a clear view of the chat history by loggers.
+    Format a list of chat messages into a readable, colorized string.
+    Args:
+        messages (list): List of chat message objects.
+    Returns:
+        str: Formatted string with color codes for different message roles.
     """
+
+    role_colors = {
+        "HumanMessage": "bold red",
+        "AIMessage": "bold yellow",
+        "SystemMessage": "bold magenta",
+        "ToolMessage": "blue",
+        "ChatMessage": "green",
+        }
+
     formatted = []
     for msg in messages:
-        role = msg.role if hasattr(msg, "role") else msg.__class__.__name__
-        formatted.append(f"[{role}] {msg.content} (ID: {msg.id})")
+        role = msg.__class__.__name__
+        color = role_colors.get(role, "white")
+        role_tag = f"[{color}][{role}] [/]"
+        formatted.append(f"{role_tag} {msg.content.strip()}")
+
     return "\n".join(formatted)
