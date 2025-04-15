@@ -14,7 +14,7 @@ def handle_maritalk_error(error: Exception):
     """
     logger.error(f"API Error: {error}")
 
-    st.error("Invalid API key. Please enter a valid one.", icon=":material/key_off:")
+    st.error("Invalid API key please enter a valid one.", icon=":material/key_off:")
 
     # Clear chat history and reset session state
     with st.spinner("Restarting chat history"):
