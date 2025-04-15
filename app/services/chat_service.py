@@ -39,7 +39,7 @@ def handle_user_input(prompt: str, llm_api_key: str):
 
         # Update the session state with the new chat history
         st.session_state["messages"] = output["messages"]
-        logger.info(f"Chat history:\n{format_chat_messages(output['messages'])}\n")
+        logger.info(f"[#FFA500][CHAT HISTORY][/#FFA500] [#4169E1][All session state messages][/#4169E1]\n\n{format_chat_messages(output['messages'])}\n\n\n")
 
     except MaritalkHTTPError as e:
         handle_maritalk_error(e)
