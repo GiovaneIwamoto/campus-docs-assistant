@@ -12,7 +12,7 @@ def configure_sidebar() -> dict:
         pinecone_api_key = st.text_input("Pinecone API Key", type="password")
         pinecone_index_name = st.text_input("Pinecone Index Name")
         embedding_model = st.text_input("Embedding Model", value="nomic-embed-text")
-        
+
         # Initialization of session state variables
         if 'llm_api_key' not in st.session_state:
             st.session_state['llm_api_key'] = llm_api_key
@@ -25,6 +25,12 @@ def configure_sidebar() -> dict:
         
         if 'embedding_model' not in st.session_state:
             st.session_state['embedding_model'] = embedding_model
+
+        # Update session state variables   
+        st.session_state['llm_api_key'] = llm_api_key
+        st.session_state['pinecone_api_key'] = pinecone_api_key  
+        st.session_state['pinecone_index_name'] = pinecone_index_name
+        st.session_state['embedding_model'] = embedding_model
 
         # Settings for indexing mode
         st.title("Indexing")
