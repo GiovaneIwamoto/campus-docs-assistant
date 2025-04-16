@@ -9,6 +9,7 @@ def handle_maritalk_error(error: Exception):
     Handle errors related to the Maritalk API, specifically invalid API keys.
     This function logs the error and provides feedback to the user.
     It also clears the chat history and resets the session state.
+    
     Args:
         error (Exception): The exception raised by the Maritalk API.
     """

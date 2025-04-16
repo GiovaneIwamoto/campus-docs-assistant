@@ -1,8 +1,10 @@
 def format_chat_messages(messages: list) -> str:
     """
     Format a list of chat messages into a readable, colorized string.
+    
     Args:
         messages (list): List of chat message objects.
+    
     Returns:
         str: Formatted string with color codes for different message roles.
     """
