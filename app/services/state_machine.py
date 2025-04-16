@@ -1,3 +1,4 @@
+import re
 import json
 import uuid
 import streamlit as st
@@ -19,18 +20,54 @@ logger = setup_logging()
 class MessagesState(TypedDict):
     messages: List
 
-def initialize_llm(api_key: str, stream: bool = True) -> ChatMaritalk:
+def initialize_llm(llm_api_key: str, stream: bool = True) -> ChatMaritalk:
     """
     Initialize the Maritalk chat model with the provided API key.
+    
     Args:
-        api_key (str): The API key for the Maritalk model.
+        llm_api_key (str): The API key for the Maritalk model.
         stream (bool): Whether to enable streaming.
+    
     Returns:
         ChatMaritalk: An instance of the Maritalk chat model.
     """
+    # OpenAI tools schema it is not relevant to binding tools to the LLM
+    tools_schema = [
+        {
+            "type": "function",
+            "function": {
+                "name": "retrieve",
+                "description": "Retrieve relevant documents from the knowledge base given a user query.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The user's question or query to search in the vector database."
+                        },
+                        "pinecone_api_key": {
+                            "type": "string",
+                            "description": "Pinecone API key for authentication."
+                        },
+                        "pinecone_index_name": {
+                            "type": "string",
+                            "description": "Name of the Pinecone index to search."
+                        },
+                        "embedding_model": {
+                            "type": "string",
+                            "description": "The embedding model to use for vectorization."
+                        }
+                    },
+                    "required": ["query", "pinecone_api_key", "pinecone_index_name", "embedding_model"],
+                    "additionalProperties": False
+                }
+            }
+        }
+    ]
+
     return ChatMaritalk(
         model="sabia-3",
-        api_key=api_key,
+        api_key=llm_api_key,
         max_tokens=100000,
         temperature=0.2,
         stream=stream,
@@ -39,123 +76,196 @@ def initialize_llm(api_key: str, stream: bool = True) -> ChatMaritalk:
     )
 
 @tool(response_format="content_and_artifact")
-def retrieve(query: str):
+def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedding_model: str) -> tuple[str, List]:
     """Retrieve relevant documents based on the user query about university files and related subjects."""
+
+    if not pinecone_api_key or not pinecone_index_name or not embedding_model:
+        error_message = "Pinecone API key, Index Name and Embedding Model are required."
+        logger.error(f"Error in 'retrieve' tool: {error_message}")
+        return error_message, []
+
     try:
         logger.info(f"[#26F5C9][TOOL][/#26F5C9] [#4169E1][Retrieve with query][/#4169E1] {query}\n")
 
-        vector_store = initialize_vectorstore(pinecone_api_key, pinecone_index_name, embedding_model)
-       
+        # Initialize the vector store
+        vector_store = initialize_vectorstore(
+            api_key=pinecone_api_key,
+            index_name=pinecone_index_name,
+            embedding_model=embedding_model
+        )  
+
+        # Perform the similarity search     
         retrieved_docs = vector_store.similarity_search(query, k=3)
         logger.info(f"\n[#26F5C9][TOOL][/#26F5C9] [#4169E1][Documents found][/#4169E1] -> {len(retrieved_docs)}\n")
 
+        # Serialize the retrieved documents
         serialized = "\n\n".join(
             f"Source: {doc.metadata}\nContent: {doc.page_content}"
             for doc in retrieved_docs
         )
         return serialized, retrieved_docs
     
+    except ValueError as ve:
+        # Handle missing parameters
+        logger.error(f"Validation error in 'retrieve' tool: {ve}")
+        return f"Validation Error: {ve}", []
+
+    except RuntimeError as re:
+        # Handle runtime errors Pinecone or embeddings initialization issues
+        logger.error(f"Runtime error in 'retrieve' tool: {re}")
+        return f"Runtime Error: {re}", []
+
     except Exception as e:
-        logger.error(f"Error in 'retrieve' tool: {e}")
-        return "Error retrieving documents.", []
+        # Handle unexpected errors
+        logger.error(f"Unexpected error in 'retrieve' tool: {e}")
+        return "An unexpected error occurred while retrieving documents.", []
 
-
-# Parse the tool call from the LLM response
 def parse_tool_call(response):
-    """Parse the tool call from the LLM response."""
+    """
+    Parse the tool call from the LLM response.   
+    
+    Args:
+        response: The response object from the LLM.
+    
+    Returns:
+        dict: Parsed tool call with function name and arguments or None if parsing fails.
+    """
     try:
+        # Get the raw content from the response and normalize it
         content = response.content.strip()
-        
-        # First try standard JSON parsing
+        normalized_content = re.sub(r"\s+", " ", content)
+
+        # Attempt to parse the content as JSON directly
         try:
-            parsed = json.loads(content)
+            parsed = json.loads(normalized_content)
+        
+        # Try extracting JSON using regex
         except json.JSONDecodeError:
-            # If that fails, try to extract valid JSON using regex
-            import re
+            logger.info("[#FF4F4F][PARSER][/#FF4F4F] Attempting regex extraction\n")
+
             json_pattern = r'(\{.*\})'
-            match = re.search(json_pattern, content)
+            match = re.search(json_pattern, normalized_content)
             if match:
                 try:
                     parsed = json.loads(match.group(1))
                 except json.JSONDecodeError:
-                    logger.error(f"Failed to parse JSON even with regex: {content}")
+                    logger.error(f"Failed to parse JSON even with regex.\n")
                     return None
             else:
-                logger.info(f"[#FF5FD3][PARSER][/#FF5FD3] No JSON pattern found\n")
+                logger.info("[#FF4F4F][PARSER][/#FF4F4F] No JSON pattern found\n")
                 return None
-        
+
+        # Validate the parsed JSON structure
         if "tool_call" in parsed:
             call = parsed["tool_call"]
+
+            # Ensure required fields are present
+            if "function" not in call or "arguments" not in call:
+                logger.error(f"Invalid tool call format.\n")
+                return None
+
+            # Map the tool call to the expected format
             call["name"] = call.pop("function", "")
             call["args"] = call.pop("arguments", {})
             call["id"] = call.get("id", str(uuid.uuid4()))
             return call
+        else:
+            logger.warning("No 'tool_call' field found in the parsed JSON.")
+            return None
+        
     except Exception as e:
         logger.error(f"Error parsing tool call: {e}")
-    return None
+        return None
+
+def generate_system_instructions():
+    """Generate the system instructions dynamically with Pinecone parameters from session state."""
+    # Retrieve Pinecone parameters from session state
+    pinecone_api_key = st.session_state.get("pinecone_api_key")
+    pinecone_index_name = st.session_state.get("pinecone_index_name")
+    embedding_model = st.session_state.get("embedding_model")
+
+    # Generate dynamic system instructions
+    system_instructions = f"""
+    You are a helpful assistant with access to a specialized document database containing information related to university files and related subjects.
+    ONLY call the tool 'retrieve' (by returning a JSON object as specified below) if the user's query is clearly about this domain.
+    If the user's query is about general topics or subjects not related to this domain, answer directly without calling any tool. 
+
+    When calling the tool, respond ONLY with a JSON object in the following format and NOTHING else:
+    {{
+        "tool_call": {{
+            "function": "retrieve",
+            "arguments": {{
+                "query": "<your query>",
+                "pinecone_api_key": "{pinecone_api_key}",
+                "pinecone_index_name": "{pinecone_index_name}",
+                "embedding_model": "{embedding_model}"
+            }}
+        }}
+    }}
+
+    If no external specialized information is required, answer directly.
+    """
+    return system_instructions
 
 def query_or_respond(state: MessagesState):
     """Handles the logic for querying or responding based on the user's input and system instructions."""
-    api_key = st.session_state.get("api_key")
-    if not api_key:
-        st.info("Please add your API key.")
-        st.stop()
-        
-    # Initialize the LLM without streaming for tool detection
-    llm_for_tools = initialize_llm(api_key, stream=False)  # Pass stream=False parameter
+    llm_api_key = st.session_state.get("llm_api_key")
 
-    # Create a copy of messages for trimming - excluding system message
+    # Initialize the LLM without streaming for tool detection
+    # At this point, there is no need to stream for tool detection
+    llm_for_tools = initialize_llm(llm_api_key, stream=False) 
+
+    # Create a copy of messages for trimming excluding system message
     history_for_trimming = [msg for msg in state["messages"] if msg.type != "system"]
     
     logger.info("[#18F54A][INITIALIZING][/#18F54A]\n")
 
-    # Trim only the conversation history (not system)
+    # Trim only the conversation history without the system message
+    # This is to ensure we don't exceed the context window limit for the LLM
     trimmer = trim_messages(
-        max_tokens=1000,
+        max_tokens=1000, # Fix this later
         strategy="last",
         token_counter=llm_for_tools,
         include_system=False,
         allow_partial=False,
         start_on="human",
     )
-    
+
     trimmed_messages = trimmer.invoke(history_for_trimming)
+
+    # Log trimmed messages for debugging
     logger.info(f"[#FFA500][TRIMMED MESSAGES][/#FFA500] [#4169E1][All state messages excluding system][/#4169E1]\n\n{format_chat_messages(trimmed_messages)}\n")
-    
-    # System instructions - kept separate from the history
-    system_instructions = """
-    You are a helpful assistant with access to a specialized document database containing information related to university files and related subjects.
-    ONLY call the tool 'retrieve' (by returning a JSON object as specified below) if the user's query is clearly about this domain.
-    If the user's query is about general topics or subjects not related to this domain, answer directly without calling any tool. 
 
-    When calling the tool, respond ONLY with a JSON object in the following format and NOTHING else:
-    {"tool_call": {"function": "retrieve", "arguments": {"query": "<your query>"}}}
+    # Generate system instructions that is oriented to generate the tool call or not
+    system_instructions = generate_system_instructions()
 
-    If no external specialized information is required, answer directly.
-    """
-    
     # Create the prompt with system with trimmed conversation
     prompt = [SystemMessage(content=system_instructions)] + trimmed_messages
-    #logger.info(f"[#FFA500][PROMPT QUERY OR RESPOND][/#FFA500] [#4169E1][System message with trimmed][/#4169E1]\n\n{format_chat_messages(prompt)}\n")
+
+    # Log prompt for debugging
+    logger.info(f"[#FFA500][PROMPT QUERY OR RESPOND][/#FFA500] [#4169E1][System message with trimmed][/#4169E1]\n\n{format_chat_messages(prompt)}\n")
     
-    # First, check if we need a tool call - no streaming for this step
+    # Log status for tool detection
     logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][Validating][/#4169E1] Checking if tool call is needed\n")
     
+    # Call the LLM to check if a tool call is needed
     response = llm_for_tools.invoke(prompt)
 
+    # Log the response for debugging
     logger.info(f"[#6819B3][LLM][/#6819B3] [#4169E1][Response][/#4169E1]{response.content}\n")
     
     # Check if the response contains a tool call
     tool_call = parse_tool_call(response)
     
+    # Tool call detected
     if tool_call:
-        logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][Detected tool call][/#4169E1]")
-        logger.info(f"   - Tool: {tool_call['name']}")
-        logger.info(f"   - Args: {tool_call['args']}\n")
+        # At AI message add the tool call attribute so it can be processed later
         response.tool_calls = [tool_call]
         # Add response to history for tool processing
         state["messages"].append(response)
         return {"messages": [response]}
+    
+    # No tool call detected
     else:
         logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][No tool call detected][/#4169E1] Generating direct response\n")
         # For direct answers, use streaming in UI
@@ -164,7 +274,7 @@ def query_or_respond(state: MessagesState):
             stream_handler = StreamHandler(stream_container)
             
             # Initialize streaming LLM for direct response
-            streaming_llm = initialize_llm(api_key, stream=True)  # Pass stream=True parameter
+            streaming_llm = initialize_llm(llm_api_key, stream=True)
             streaming_llm.callbacks = [stream_handler]
             
             # Generate a new, streaming response
@@ -180,13 +290,10 @@ def query_or_respond(state: MessagesState):
         
 def generate(state: MessagesState):
     """Generate the final response using the tool's content."""
-    api_key = st.session_state.get("api_key")
-    if not api_key:
-        st.info("Please add your API key.")
-        st.stop()
+    llm_api_key = st.session_state.get("llm_api_key")
 
     # Initialize LLM without streaming initially
-    llm = initialize_llm(api_key, stream=False)  # Pass stream=False
+    llm = initialize_llm(llm_api_key, stream=False)
 
     logger.info("[#6819B3][LLM TOOL][/#6819B3] [#4169E1]Generating final response using knowledge base[/#4169E1]\n")
 
@@ -233,7 +340,7 @@ def generate(state: MessagesState):
         stream_handler = StreamHandler(stream_container)
         
         # Re-initialize LLM with streaming for UI
-        streaming_llm = initialize_llm(api_key, stream=True)  # Pass stream=True
+        streaming_llm = initialize_llm(llm_api_key, stream=True)  # Pass stream=True
         streaming_llm.callbacks = [stream_handler]
         
         # Stream response chunks to UI
@@ -247,27 +354,6 @@ def generate(state: MessagesState):
         result = {"messages": [ai_message]}
         st.session_state["messages"].extend(result["messages"])
 
-    
-tools_schema = [
-    {
-        "type": "function",
-        "function": {
-            "name": "retrieve",
-            "description": "Retrieve relevant documents from the knowledge base given a user query.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The user's question or query to search in the vector database."
-                    }
-                },
-                "required": ["query"],
-                "additionalProperties": False
-            }
-        }
-    }
-]
 
 # Build the state graph
 builder = StateGraph(MessagesState)
