@@ -6,7 +6,12 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 def run_indexing_mode(config: dict):
     """
     Run the indexing mode to scrape a web page and index its content into Pinecone.
+    
+    Args:
+        config (dict): Configuration dictionary containing the web URL, Pinecone API key,
+                       Pinecone index name, and embedding model.
     """
+    # Set configuration parameters
     web_url = config.get("web_url")
     pinecone_api_key = config.get("pinecone_api_key")
     pinecone_index_name = config.get("pinecone_index_name")
@@ -34,8 +39,17 @@ def run_indexing_mode(config: dict):
 
         st.success(f"Web page content indexed successfully at Pinecone!", icon=":material/cloud_done:")
 
-    except Exception as e:
-        st.error(f"An error occurred while indexing the web page.", icon=":material/cloud_off:")
+    except ValueError as ve:
+        st.error(f"Value error occurred: {ve}", icon=":material/cloud_off:")
+        with st.expander("Error details"):
+            st.exception(ve)
 
+    except RuntimeError as re:
+        st.error(f"Runtime error occurred: {re}", icon=":material/cloud_off:")
+        with st.expander("Error details"):
+            st.exception(re)
+
+    except Exception as e:
+        st.error(f"An unexpected error occurred during indexing process.", icon=":material/cloud_off:")
         with st.expander("Error details"):
             st.exception(e)
