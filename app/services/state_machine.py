@@ -5,6 +5,8 @@ from typing_extensions import TypedDict, List
 from config.logging_config import setup_logging
 from core.handlers import StreamHandler
 from services.vectorstore_service import initialize_vectorstore
+from template.rag_prompt import RAG_SYSTEM_PROMPT
+from template.tool_decision_prompt import TOOL_DECISION_SYSTEM_PROMPT
 from utils.chat_utils import format_chat_messages
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, trim_messages
 from langchain_core.tools import tool
@@ -159,53 +161,6 @@ def parse_tool_call(response):
         logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] Error parsing tool call: {str(e)}\n")
         return None
 
-def generate_system_instructions():
-    """Generate the system instructions dynamically with Pinecone parameters from session state."""
-    # Retrieve Pinecone parameters from session state
-    pinecone_api_key = st.session_state.get("pinecone_api_key")
-    pinecone_index_name = st.session_state.get("pinecone_index_name")
-    embedding_model = st.session_state.get("embedding_model")
-
-    # Generate dynamic system instructions
-    system_instructions = f"""
-    You are a helpful assistant with access to a specialized document database containing information related to university files and educational resources.
-    
-    FIRST EVALUATE THE USER'S QUERY CAREFULLY:
-    1. If the user is asking about the conversation itself (chat history, previous messages, or your capabilities), answer directly from the conversation history.
-    2. If the user is making casual conversation or asking general questions, answer directly without using tools.
-    3. ONLY call the tool 'retrieve' if the user is explicitly requesting information about:
-       - University academic content, courses, or materials
-       - Campus facilities or services
-       - Administrative procedures or documents
-       - Faculty information or contacts
-       - Student resources or academic policies
-    
-    DO NOT call the tool for:
-    - Questions about the current conversation
-    - Personal questions to you
-    - General knowledge questions
-    - Questions about what the user previously said or asked
-    - Clarification requests
-
-    IMPORTANT: When calling the tool, respond with ONLY a valid JSON object. No explanations or additional text before or after.
-    The JSON must be formatted exactly as shown, with no line breaks within values:    
-    
-    {{
-        "tool_call": {{
-            "function": "retrieve",
-            "arguments": {{
-                "query": "<your query>",
-                "pinecone_api_key": "{pinecone_api_key}",
-                "pinecone_index_name": "{pinecone_index_name}",
-                "embedding_model": "{embedding_model}"
-            }}
-        }}
-    }}
-
-    If no external specialized information is required, answer directly.
-    """
-    return system_instructions
-
 def query_or_respond(state: MessagesState):
     """Handles the logic for querying or responding based on the user's input and system instructions."""
     llm_api_key = st.session_state.get("llm_api_key")
@@ -235,8 +190,13 @@ def query_or_respond(state: MessagesState):
     logger.info(f"[#FFA500][TRIMMED MESSAGES][/#FFA500] [#4169E1][All state messages excluding system][/#4169E1]\n\n{format_chat_messages(trimmed_messages)}\n")
 
     # Generate system instructions that is oriented to generate the tool call or not
-    system_instructions = generate_system_instructions()
-    prompt = [SystemMessage(content=system_instructions)] + trimmed_messages
+    tool_decision_system_prompt = TOOL_DECISION_SYSTEM_PROMPT.format(
+        pinecone_api_key=st.session_state.get("pinecone_api_key"),
+        pinecone_index_name=st.session_state.get("pinecone_index_name"),
+        embedding_model=st.session_state.get("embedding_model")
+    )
+
+    prompt = [SystemMessage(content=tool_decision_system_prompt)] + trimmed_messages
     #logger.info(f"[#FFA500][PROMPT QUERY OR RESPOND][/#FFA500] [#4169E1][System message with trimmed][/#4169E1]\n\n{format_chat_messages(prompt)}\n")
     
     # Call the LLM to get initial response
@@ -324,22 +284,12 @@ def generate(state: MessagesState):
     else:
         logger.warning("[#6819B3][LLM TOOL][/#6819B3] No human messages found in the conversation history\n")
 
-    # Generate system message for the LLM
-    rag_system_message = (f"""
-        You are a helpful assistant with access to a specialized document database containing information related to university files and educational resources.
-        
-        Your task is to answer the user's question using the context provided. If you don't know the answer, say that you don't know.
-        
-        The user has asked:
-        {last_human_message.content}
-        
-        Context:
-        {docs_content}
-    """)
+    # Generate the system prompt for RAG
+    rag_system_prompt = RAG_SYSTEM_PROMPT.format(context=docs_content)
 
     # Create the final prompt for the LLM last human message and context
-    prompt = [SystemMessage(content=rag_system_message)] 
-    logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Final prompt for LLM][/#4169E1]\n{format_chat_messages(prompt)}\n")
+    prompt = [SystemMessage(content=rag_system_prompt), HumanMessage(content=last_human_message.content)] 
+    #logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Final prompt for LLM][/#4169E1]\n{format_chat_messages(prompt)}\n")
 
     # Stream the response to UI
     with st.chat_message("assistant"):
