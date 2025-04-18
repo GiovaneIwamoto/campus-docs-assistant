@@ -1,4 +1,3 @@
-import re
 import json
 import uuid
 import streamlit as st
@@ -7,7 +6,7 @@ from config.logging_config import setup_logging
 from core.handlers import StreamHandler
 from services.vectorstore_service import initialize_vectorstore
 from utils.chat_utils import format_chat_messages
-from langchain_core.messages import AIMessage, SystemMessage, trim_messages
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, trim_messages
 from langchain_core.tools import tool
 from langchain_community.chat_models import ChatMaritalk
 from langgraph.graph import StateGraph, MessagesState, END
@@ -123,6 +122,13 @@ def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedd
 def parse_tool_call(response):
     """
     Parse the tool call from the LLM response when we've already identified it as a potential JSON.
+
+    Args:
+        response (str): The LLM response content.
+        
+    Returns:
+        dict: Parsed tool call with function name and arguments.
+        None: If the parsing fails or the structure is invalid.
     """
     try:
         # Attempt to parse as JSON
@@ -213,10 +219,9 @@ def query_or_respond(state: MessagesState):
     
     logger.info("[#18F54A][INITIALIZING][/#18F54A]\n")
 
-    # Trim only the conversation history without the system message
-    # This is to ensure we don't exceed the context window limit for the LLM
+    # Trim messages to fit within the token limit from the LLM
     trimmer = trim_messages(
-        max_tokens=10000,
+        max_tokens=50000,
         strategy="last",
         token_counter=llm_for_tools,
         include_system=False,
@@ -232,7 +237,7 @@ def query_or_respond(state: MessagesState):
     # Generate system instructions that is oriented to generate the tool call or not
     system_instructions = generate_system_instructions()
     prompt = [SystemMessage(content=system_instructions)] + trimmed_messages
-    logger.info(f"[#FFA500][PROMPT QUERY OR RESPOND][/#FFA500] [#4169E1][System message with trimmed][/#4169E1]\n\n{format_chat_messages(prompt)}\n")
+    #logger.info(f"[#FFA500][PROMPT QUERY OR RESPOND][/#FFA500] [#4169E1][System message with trimmed][/#4169E1]\n\n{format_chat_messages(prompt)}\n")
     
     # Call the LLM to get initial response
     logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][Validating][/#4169E1] Checking if tool call is needed\n")
@@ -258,7 +263,8 @@ def query_or_respond(state: MessagesState):
     
         if tool_call:
             # At AI message add the tool call attribute so it can be processed later
-            response.tool_calls = [tool_call]
+            response.tool_calls = [tool_call]    
+            
             # Add response to history for tool processing
             state["messages"].append(response)
             return {"messages": [response]}
@@ -290,47 +296,50 @@ def generate(state: MessagesState):
     """Generate the final response using the tool's content."""
     llm_api_key = st.session_state.get("llm_api_key")
 
-    # Initialize LLM without streaming initially
-    llm = initialize_llm(llm_api_key, stream=False)
+    logger.info("[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Generating final response using knowledge base][/#4169E1]\n")
 
-    logger.info("[#6819B3][LLM TOOL][/#6819B3] [#4169E1]Generating final response using knowledge base[/#4169E1]\n")
-
+    # Get recent tool messages (context from retrieve)
     recent_tool_messages = [
         m for m in reversed(state["messages"]) if m.type == "tool"
     ][::-1]
+    logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Recent tool messages][/#4169E1]\n\n{format_chat_messages(recent_tool_messages)}\n")
 
     if not recent_tool_messages:
-        logger.error("[ERROR] ToolMessage not found. Cannot generate final response.")
+        logger.error("ToolMessage not found. Cannot generate final response.\n")
         return {"messages": state["messages"]}
 
-    # Extract context from tool responses but don't add to history
+    # Extract context from tool responses
     docs_content = "\n\n".join(t.content for t in recent_tool_messages)
-    rag_system_message = (
-        "You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. "
-        "If you don't know the answer, say that you don't know. Use three sentences maximum and keep the answer concise.\n\n"
-        f"Context:\n{docs_content}"
-    )
 
-    # Filter to get only conversation messages (no tools, no system)
+    # Filter conversation messages to include only human messages
     conversation_messages = [
-        m for m in state["messages"]
-        if m.type in ("human", "ai") and not getattr(m, "tool_calls", [])
+        m for m in st.session_state["messages"] if isinstance(m, HumanMessage)
     ]
-    
-    # Trim the conversation if needed
-    trimmer = trim_messages(
-        max_tokens=10000,
-        strategy="last",
-        token_counter=llm,
-        include_system=False,
-        allow_partial=False,
-        start_on="human",
-    )
-    
-    trimmed_conversation = trimmer.invoke(conversation_messages)
-    
-    # Compose final prompt with system first, then conversation
-    prompt = [SystemMessage(content=rag_system_message)] + trimmed_conversation
+    logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Human last conversation messages][/#4169E1]\n\n{format_chat_messages(conversation_messages)}\n")
+
+    # Get the last human message
+    if conversation_messages:
+        last_human_message = conversation_messages[-1]
+        logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Last human message][/#4169E1]\n\n{last_human_message.content}\n")
+    else:
+        logger.warning("[#6819B3][LLM TOOL][/#6819B3] No human messages found in the conversation history\n")
+
+    # Generate system message for the LLM
+    rag_system_message = (f"""
+        You are a helpful assistant with access to a specialized document database containing information related to university files and educational resources.
+        
+        Your task is to answer the user's question using the context provided. If you don't know the answer, say that you don't know.
+        
+        The user has asked:
+        {last_human_message.content}
+        
+        Context:
+        {docs_content}
+    """)
+
+    # Create the final prompt for the LLM last human message and context
+    prompt = [SystemMessage(content=rag_system_message)] 
+    logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Final prompt for LLM][/#4169E1]\n{format_chat_messages(prompt)}\n")
 
     # Stream the response to UI
     with st.chat_message("assistant"):
@@ -338,7 +347,7 @@ def generate(state: MessagesState):
         stream_handler = StreamHandler(stream_container)
         
         # Re-initialize LLM with streaming for UI
-        streaming_llm = initialize_llm(llm_api_key, stream=True)  # Pass stream=True
+        streaming_llm = initialize_llm(llm_api_key, stream=True)
         streaming_llm.callbacks = [stream_handler]
         
         # Stream response chunks to UI
@@ -349,8 +358,8 @@ def generate(state: MessagesState):
         
         # Create final message and add to history
         ai_message = AIMessage(content=accumulated_response)
-        result = {"messages": [ai_message]}
-        st.session_state["messages"].extend(result["messages"])
+        st.session_state["messages"].append(ai_message)
+        return {"messages": st.session_state["messages"]}
 
 
 # Build the state graph
