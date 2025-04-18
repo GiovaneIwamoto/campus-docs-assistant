@@ -133,29 +133,58 @@ def parse_tool_call(response):
     try:
         # Get the raw content from the response and normalize it
         content = response.content.strip()
-        normalized_content = re.sub(r"\s+", " ", content)
-
-        # Attempt to parse the content as JSON directly
-        try:
-            parsed = json.loads(normalized_content)
         
-        # Try extracting JSON using regex
+        # Direct JSON parsing
+        try:
+            parsed = json.loads(content)
+            logger.info("[#b121eb][PARSER][/#b121eb] Successfully parsed JSON directly\n")
         except json.JSONDecodeError:
-            logger.info("[#FF4F4F][PARSER][/#FF4F4F] Attempting regex extraction\n")
-
-            json_pattern = r'(\{.*\})'
-            match = re.search(json_pattern, normalized_content)
-            if match:
-                try:
-                    parsed = json.loads(match.group(1))
-                except json.JSONDecodeError:
-                    logger.error(f"Failed to parse JSON even with regex.\n")
+            # Fix common JSON formatting issues
+            logger.info("[#b121eb][PARSER][/#b121eb] Attempting to fix and parse JSON\n")
+            
+            # Fix potential missing braces
+            open_braces = content.count('{')
+            close_braces = content.count('}')
+            if open_braces > close_braces:
+                # Add missing closing braces
+                content += '}' * (open_braces - close_braces)
+                logger.info(f"[#b121eb][PARSER][/#b121eb] Added {open_braces - close_braces} missing closing braces\n")
+            
+            # Remove line breaks in the middle of strings
+            content = re.sub(r'"\s+', '"', content)
+            
+            # Clean up any newlines or excessive whitespace
+            content = re.sub(r'\s+', ' ', content)
+            
+            try:
+                parsed = json.loads(content)
+                logger.info("[#b121eb][PARSER][/#b121eb] Successfully parsed fixed JSON\n")
+            except json.JSONDecodeError as e:
+                # Extract JSON using regex
+                logger.info(f"[#b121eb][PARSER][/#b121eb] Still can't parse JSON after fixes: {e}. Attempting regex extraction\n")
+                
+                # Look for JSON pattern with potential unclosed braces
+                json_pattern = r'(\{.*)'
+                match = re.search(json_pattern, content)
+                if match:
+                    extracted = match.group(1)
+                    # Count braces again on extracted portion
+                    open_braces = extracted.count('{')
+                    close_braces = extracted.count('}')
+                    if open_braces > close_braces:
+                        extracted += '}' * (open_braces - close_braces)
+                        
+                    try:
+                        parsed = json.loads(extracted)
+                        logger.info("[#b121eb][PARSER][/#b121eb] Successfully parsed JSON via regex extraction\n")
+                    except json.JSONDecodeError:
+                        logger.error(f"Failed to parse JSON even with regex and brace fixes\n")
+                        return None
+                else:
+                    logger.info("[#b121eb][PARSER][/#b121eb] No JSON pattern found\n")
                     return None
-            else:
-                logger.info("[#FF4F4F][PARSER][/#FF4F4F] No JSON pattern found\n")
-                return None
 
-        # Validate the parsed JSON structure
+        # Process the parsed JSON
         if "tool_call" in parsed:
             call = parsed["tool_call"]
 
@@ -163,16 +192,16 @@ def parse_tool_call(response):
             if "function" not in call or "arguments" not in call:
                 logger.error(f"Invalid tool call format.\n")
                 return None
-
+                
             # Map the tool call to the expected format
             call["name"] = call.pop("function", "")
             call["args"] = call.pop("arguments", {})
             call["id"] = call.get("id", str(uuid.uuid4()))
             return call
         else:
-            logger.warning("No 'tool_call' field found in the parsed JSON.")
+            logger.warning("No 'tool_call' field found in the parsed JSON\n")
             return None
-        
+    
     except Exception as e:
         logger.error(f"Error parsing tool call: {e}")
         return None
