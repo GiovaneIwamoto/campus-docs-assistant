@@ -122,75 +122,19 @@ def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedd
 
 def parse_tool_call(response):
     """
-    Parse the tool call from the LLM response.   
-    
-    Args:
-        response: The response object from the LLM.
-    
-    Returns:
-        dict: Parsed tool call with function name and arguments or None if parsing fails.
+    Parse the tool call from the LLM response when we've already identified it as a potential JSON.
     """
     try:
-        # Get the raw content from the response and normalize it
-        content = response.content.strip()
+        # Attempt to parse as JSON
+        parsed = json.loads(response.content)
         
-        # Direct JSON parsing
-        try:
-            parsed = json.loads(content)
-            logger.info("[#b121eb][PARSER][/#b121eb] Successfully parsed JSON directly\n")
-        except json.JSONDecodeError:
-            # Fix common JSON formatting issues
-            logger.info("[#b121eb][PARSER][/#b121eb] Attempting to fix and parse JSON\n")
-            
-            # Fix potential missing braces
-            open_braces = content.count('{')
-            close_braces = content.count('}')
-            if open_braces > close_braces:
-                # Add missing closing braces
-                content += '}' * (open_braces - close_braces)
-                logger.info(f"[#b121eb][PARSER][/#b121eb] Added {open_braces - close_braces} missing closing braces\n")
-            
-            # Remove line breaks in the middle of strings
-            content = re.sub(r'"\s+', '"', content)
-            
-            # Clean up any newlines or excessive whitespace
-            content = re.sub(r'\s+', ' ', content)
-            
-            try:
-                parsed = json.loads(content)
-                logger.info("[#b121eb][PARSER][/#b121eb] Successfully parsed fixed JSON\n")
-            except json.JSONDecodeError as e:
-                # Extract JSON using regex
-                logger.info(f"[#b121eb][PARSER][/#b121eb] Still can't parse JSON after fixes: {e}. Attempting regex extraction\n")
-                
-                # Look for JSON pattern with potential unclosed braces
-                json_pattern = r'(\{.*)'
-                match = re.search(json_pattern, content)
-                if match:
-                    extracted = match.group(1)
-                    # Count braces again on extracted portion
-                    open_braces = extracted.count('{')
-                    close_braces = extracted.count('}')
-                    if open_braces > close_braces:
-                        extracted += '}' * (open_braces - close_braces)
-                        
-                    try:
-                        parsed = json.loads(extracted)
-                        logger.info("[#b121eb][PARSER][/#b121eb] Successfully parsed JSON via regex extraction\n")
-                    except json.JSONDecodeError:
-                        logger.error(f"Failed to parse JSON even with regex and brace fixes\n")
-                        return None
-                else:
-                    logger.info("[#b121eb][PARSER][/#b121eb] No JSON pattern found\n")
-                    return None
-
-        # Process the parsed JSON
+        # Validate the structure
         if "tool_call" in parsed:
             call = parsed["tool_call"]
-
+            
             # Ensure required fields are present
             if "function" not in call or "arguments" not in call:
-                logger.error(f"Invalid tool call format.\n")
+                logger.error("[#FF4F4F][PARSER][/#FF4F4F] Invalid tool call format - missing required fields\n")
                 return None
                 
             # Map the tool call to the expected format
@@ -199,11 +143,14 @@ def parse_tool_call(response):
             call["id"] = call.get("id", str(uuid.uuid4()))
             return call
         else:
-            logger.warning("No 'tool_call' field found in the parsed JSON\n")
+            logger.warning("[#FF4F4F][PARSER][/#FF4F4F] No 'tool_call' field found in the parsed JSON\n")
             return None
-    
+            
+    except json.JSONDecodeError as e:
+        logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] JSON decode error: {str(e)}\n")
+        return None
     except Exception as e:
-        logger.error(f"Error parsing tool call: {e}")
+        logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] Error parsing tool call: {str(e)}\n")
         return None
 
 def generate_system_instructions():
@@ -215,11 +162,28 @@ def generate_system_instructions():
 
     # Generate dynamic system instructions
     system_instructions = f"""
-    You are a helpful assistant with access to a specialized document database containing information related to university files and related subjects.
-    ONLY call the tool 'retrieve' (by returning a JSON object as specified below) if the user's query is clearly about this domain.
-    If the user's query is about general topics or subjects not related to this domain, answer directly without calling any tool. 
+    You are a helpful assistant with access to a specialized document database containing information related to university files and educational resources.
+    
+    FIRST EVALUATE THE USER'S QUERY CAREFULLY:
+    1. If the user is asking about the conversation itself (chat history, previous messages, or your capabilities), answer directly from the conversation history.
+    2. If the user is making casual conversation or asking general questions, answer directly without using tools.
+    3. ONLY call the tool 'retrieve' if the user is explicitly requesting information about:
+       - University academic content, courses, or materials
+       - Campus facilities or services
+       - Administrative procedures or documents
+       - Faculty information or contacts
+       - Student resources or academic policies
+    
+    DO NOT call the tool for:
+    - Questions about the current conversation
+    - Personal questions to you
+    - General knowledge questions
+    - Questions about what the user previously said or asked
+    - Clarification requests
 
-    When calling the tool, respond ONLY with a JSON object in the following format and NOTHING else:
+    IMPORTANT: When calling the tool, respond with ONLY a valid JSON object. No explanations or additional text before or after.
+    The JSON must be formatted exactly as shown, with no line breaks within values:    
+    
     {{
         "tool_call": {{
             "function": "retrieve",
@@ -252,7 +216,7 @@ def query_or_respond(state: MessagesState):
     # Trim only the conversation history without the system message
     # This is to ensure we don't exceed the context window limit for the LLM
     trimmer = trim_messages(
-        max_tokens=1000, # Fix this later
+        max_tokens=10000,
         strategy="last",
         token_counter=llm_for_tools,
         include_system=False,
@@ -267,36 +231,41 @@ def query_or_respond(state: MessagesState):
 
     # Generate system instructions that is oriented to generate the tool call or not
     system_instructions = generate_system_instructions()
-
-    # Create the prompt with system with trimmed conversation
     prompt = [SystemMessage(content=system_instructions)] + trimmed_messages
-
-    # Log prompt for debugging
     logger.info(f"[#FFA500][PROMPT QUERY OR RESPOND][/#FFA500] [#4169E1][System message with trimmed][/#4169E1]\n\n{format_chat_messages(prompt)}\n")
     
-    # Log status for tool detection
+    # Call the LLM to get initial response
     logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][Validating][/#4169E1] Checking if tool call is needed\n")
-    
-    # Call the LLM to check if a tool call is needed
     response = llm_for_tools.invoke(prompt)
+    content = response.content.strip()
+    logger.info(f"[#6819B3][LLM][/#6819B3] [#4169E1][Response content][/#4169E1]\n{content}\n")
+    
+    # Check if it looks like a JSON response starts with open brace
+    if content.startswith('{'):
+        logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][Potential tool call detected][/#4169E1]\n")
+        
+        # Try to balance braces if they're unbalanced
+        open_braces = content.count('{')
+        close_braces = content.count('}')
+        if open_braces > close_braces:
+            logger.info(f"[#6819B3][LLM][/#6819B3] [#4169E1][Detected unbalanced braces][/#4169E1] {open_braces} opening vs {close_braces} closing\n")
+            # Add missing closing braces
+            content = content + ('}' * (open_braces - close_braces))
+            response.content = content
 
-    # Log the response for debugging
-    logger.info(f"[#6819B3][LLM][/#6819B3] [#4169E1][Response][/#4169E1]{response.content}\n")
+        # Check if the response contains a tool call
+        tool_call = parse_tool_call(response)
     
-    # Check if the response contains a tool call
-    tool_call = parse_tool_call(response)
-    
-    # Tool call detected
-    if tool_call:
-        # At AI message add the tool call attribute so it can be processed later
-        response.tool_calls = [tool_call]
-        # Add response to history for tool processing
-        state["messages"].append(response)
-        return {"messages": [response]}
+        if tool_call:
+            # At AI message add the tool call attribute so it can be processed later
+            response.tool_calls = [tool_call]
+            # Add response to history for tool processing
+            state["messages"].append(response)
+            return {"messages": [response]}
     
     # No tool call detected
     else:
-        logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][No tool call detected][/#4169E1] Generating direct response\n")
+        logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][No tool call detected][/#4169E1] Streaming generated response\n")
         # For direct answers, use streaming in UI
         with st.chat_message("assistant"):
             stream_container = st.empty()
@@ -350,7 +319,7 @@ def generate(state: MessagesState):
     
     # Trim the conversation if needed
     trimmer = trim_messages(
-        max_tokens=1000,
+        max_tokens=10000,
         strategy="last",
         token_counter=llm,
         include_system=False,
