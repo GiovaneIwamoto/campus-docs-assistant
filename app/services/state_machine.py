@@ -32,39 +32,6 @@ def initialize_llm(llm_api_key: str, stream: bool = True) -> ChatMaritalk:
     Returns:
         ChatMaritalk: An instance of the Maritalk chat model.
     """
-    # OpenAI tools schema it is not relevant to binding tools to the LLM
-    tools_schema = [
-        {
-            "type": "function",
-            "function": {
-                "name": "retrieve",
-                "description": "Retrieve relevant documents from the knowledge base given a user query.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "The user's question or query to search in the vector database."
-                        },
-                        "pinecone_api_key": {
-                            "type": "string",
-                            "description": "Pinecone API key for authentication."
-                        },
-                        "pinecone_index_name": {
-                            "type": "string",
-                            "description": "Name of the Pinecone index to search."
-                        },
-                        "embedding_model": {
-                            "type": "string",
-                            "description": "The embedding model to use for vectorization."
-                        }
-                    },
-                    "required": ["query", "pinecone_api_key", "pinecone_index_name", "embedding_model"],
-                    "additionalProperties": False
-                }
-            }
-        }
-    ]
 
     return ChatMaritalk(
         model="sabia-3",
@@ -73,7 +40,6 @@ def initialize_llm(llm_api_key: str, stream: bool = True) -> ChatMaritalk:
         temperature=0.2,
         stream=stream,
         callbacks=[],
-        tools=tools_schema,
     )
 
 @tool(response_format="content_and_artifact")
