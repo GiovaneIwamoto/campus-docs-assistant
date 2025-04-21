@@ -69,7 +69,7 @@ def initialize_llm(llm_api_key: str, stream: bool = True) -> ChatMaritalk:
     return ChatMaritalk(
         model="sabia-3",
         api_key=llm_api_key,
-        max_tokens=100000,
+        max_tokens=50000,
         temperature=0.2,
         stream=stream,
         callbacks=[],
@@ -176,7 +176,7 @@ def query_or_respond(state: MessagesState):
 
     # Trim messages to fit within the token limit from the LLM
     trimmer = trim_messages(
-        max_tokens=50000,
+        max_tokens=40000,
         strategy="last",
         token_counter=llm_for_tools,
         include_system=False,
