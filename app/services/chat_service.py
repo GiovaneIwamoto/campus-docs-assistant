@@ -2,7 +2,7 @@ import uuid
 import streamlit as st
 from config.logging_config import setup_logging
 from services.state_machine import app
-from utils.chat_utils import format_chat_messages
+from utils.chat_formatter import format_chat_messages
 from utils.error_handler import handle_maritalk_error
 from langchain_core.messages import HumanMessage
 from langchain_community.chat_models.maritalk import MaritalkHTTPError

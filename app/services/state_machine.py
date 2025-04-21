@@ -7,7 +7,7 @@ from core.handlers import StreamHandler
 from services.vectorstore_service import initialize_vectorstore
 from template.rag_prompt import RAG_SYSTEM_PROMPT
 from template.tool_decision_prompt import TOOL_DECISION_SYSTEM_PROMPT
-from utils.chat_utils import format_chat_messages
+from utils.chat_formatter import format_chat_messages
 from utils.tool_call_parser import parse_tool_call
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, trim_messages
 from langchain_core.tools import tool
