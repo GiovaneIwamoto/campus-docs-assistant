@@ -11,9 +11,6 @@ __pycache__/
 # Streamlit files
 .streamlit/
 
-# Serverless framework files
-src/backend/.serverless/
-
 # Logs and temporary files
 *.log
 *.tmp
@@ -28,6 +25,3 @@ node_modules/
 # Build and distribution directories
 dist/
 build/
-
-# Archive files
-archive/*
