@@ -1,12 +1,3 @@
-# HTTP and API requests
-requests
-
-# Environment variables
-python-dotenv
-
-# Telegram bot integration
-python-telegram-bot
-
 # Web app framework
 streamlit
 
