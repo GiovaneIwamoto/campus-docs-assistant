@@ -249,8 +249,8 @@ def query_or_respond(state: MessagesState):
             
             # Create final message and add to history
             ai_message = AIMessage(content=accumulated_response)
-            state = {"messages": st.session_state["messages"]}
-            st.session_state["messages"].append(ai_message)
+            state["messages"].append(ai_message)
+            return {"messages": state["messages"]}
         
 def generate(state: MessagesState):
     """Generate the final response using the tool's content."""
@@ -306,6 +306,10 @@ def generate(state: MessagesState):
             if chunk.content:
                 accumulated_response += chunk.content
         
+        # Remove last AI message from history to avoid tool call messsage persisting to next query
+        if st.session_state["messages"] and isinstance(st.session_state["messages"][-1], AIMessage):
+            st.session_state["messages"].pop()
+
         # Create final message and add to history
         ai_message = AIMessage(content=accumulated_response)
         st.session_state["messages"].append(ai_message)
