@@ -233,7 +233,7 @@ def query_or_respond(state: MessagesState):
     else:
         logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][No tool call detected][/#4169E1] Streaming generated response\n")
         # For direct answers, use streaming in UI
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar=":material/mindfulness:"):
             stream_container = st.empty()
             stream_handler = StreamHandler(stream_container)
             
@@ -292,7 +292,7 @@ def generate(state: MessagesState):
     #logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Final prompt for LLM][/#4169E1]\n{format_chat_messages(prompt)}\n")
 
     # Stream the response to UI
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar=":material/psychology:"):
         stream_container = st.empty()
         stream_handler = StreamHandler(stream_container)
         

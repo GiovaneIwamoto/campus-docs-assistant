@@ -20,5 +20,7 @@ def display_banner():
 
 def display_chat_history():
     for msg in st.session_state["messages"]:
-        role = "user" if isinstance(msg, HumanMessage) else "assistant"
-        st.chat_message(role).write(msg.content)
+        if isinstance(msg, HumanMessage):
+            st.chat_message(name="user", avatar=":material/face:").write(msg.content)
+        else:
+            st.chat_message(name="assistant", avatar=":material/smart_toy:").write(msg.content)

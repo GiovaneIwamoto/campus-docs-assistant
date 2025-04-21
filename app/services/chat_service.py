@@ -49,7 +49,7 @@ def handle_user_input(prompt: str):
 
     # Append the user's message to the chat history
     st.session_state["messages"].append(HumanMessage(content=prompt))
-    st.chat_message("user").write(prompt)
+    st.chat_message("user", avatar=":material/face:").write(prompt)
 
     try:
         # Invoke the state machine to process the input
