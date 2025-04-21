@@ -5,6 +5,20 @@ streamlit
 langchain
 langchain-community
 langchain-core
+langchain-text-splitters
+langgraph
 
 # Console formatting
 rich
+
+# Vector database
+pinecone
+
+# Logging and debugging
+logging
+
+# Browser automation
+playwright
+
+# Typing extensions
+typing-extensions
