@@ -18,5 +18,5 @@ def get_rendered_webpage(url: str) -> Document:
             browser.close()
             return Document(page_content=html, metadata={"source": url})
     except Exception as e:
-        logger.error(f"Error during web scraping: {e}")
+        logger.error(f"Error during web scraping: {e}\n")
         raise

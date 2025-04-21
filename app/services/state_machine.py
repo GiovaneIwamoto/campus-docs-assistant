@@ -82,7 +82,7 @@ def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedd
 
     if not pinecone_api_key or not pinecone_index_name or not embedding_model:
         error_message = "Pinecone API key, Index Name and Embedding Model are required."
-        logger.error(f"Error in 'retrieve' tool: {error_message}")
+        logger.error(f"Error in 'retrieve' tool: {error_message}\n")
         return error_message, []
 
     try:
@@ -108,17 +108,17 @@ def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedd
     
     except ValueError as ve:
         # Handle missing parameters
-        logger.error(f"Validation error in 'retrieve' tool: {ve}")
+        logger.error(f"Validation error in 'retrieve' tool: {ve}\n")
         return f"Validation Error: {ve}", []
 
     except RuntimeError as re:
         # Handle runtime errors Pinecone or embeddings initialization issues
-        logger.error(f"Runtime error in 'retrieve' tool: {re}")
+        logger.error(f"Runtime error in 'retrieve' tool: {re}\n")
         return f"Runtime Error: {re}", []
 
     except Exception as e:
         # Handle unexpected errors
-        logger.error(f"Unexpected error in 'retrieve' tool: {e}")
+        logger.error(f"Unexpected error in 'retrieve' tool: {e}\n")
         return "An unexpected error occurred while retrieving documents.", []
 
 def parse_tool_call(response):
@@ -197,7 +197,6 @@ def query_or_respond(state: MessagesState):
     )
 
     prompt = [SystemMessage(content=tool_decision_system_prompt)] + trimmed_messages
-    #logger.info(f"[#FFA500][PROMPT QUERY OR RESPOND][/#FFA500] [#4169E1][System message with trimmed][/#4169E1]\n\n{format_chat_messages(prompt)}\n")
     
     # Call the LLM to get initial response
     logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][Validating][/#4169E1] Checking if tool call is needed\n")
@@ -289,7 +288,6 @@ def generate(state: MessagesState):
 
     # Create the final prompt for the LLM last human message and context
     prompt = [SystemMessage(content=rag_system_prompt), HumanMessage(content=last_human_message.content)] 
-    #logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Final prompt for LLM][/#4169E1]\n{format_chat_messages(prompt)}\n")
 
     # Stream the response to UI
     with st.chat_message("assistant", avatar=":material/psychology:"):

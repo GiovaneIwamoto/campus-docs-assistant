@@ -13,7 +13,7 @@ def handle_maritalk_error(error: Exception):
     Args:
         error (Exception): The exception raised by the Maritalk API.
     """
-    logger.error(f"API Error: {error}")
+    logger.error(f"API Error: {error}\n")
 
     st.error("Invalid API key please enter a valid one.", icon=":material/key_off:")
 
