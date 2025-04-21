@@ -8,6 +8,7 @@ from services.vectorstore_service import initialize_vectorstore
 from template.rag_prompt import RAG_SYSTEM_PROMPT
 from template.tool_decision_prompt import TOOL_DECISION_SYSTEM_PROMPT
 from utils.chat_utils import format_chat_messages
+from utils.tool_call_parser import parse_tool_call
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, trim_messages
 from langchain_core.tools import tool
 from langchain_community.chat_models import ChatMaritalk
@@ -86,46 +87,6 @@ def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedd
         # Handle unexpected errors
         logger.error(f"Unexpected error in 'retrieve' tool: {e}\n")
         return "An unexpected error occurred while retrieving documents.", []
-
-def parse_tool_call(response):
-    """
-    Parse the tool call from the LLM response when we've already identified it as a potential JSON.
-
-    Args:
-        response (str): The LLM response content.
-        
-    Returns:
-        dict: Parsed tool call with function name and arguments.
-        None: If the parsing fails or the structure is invalid.
-    """
-    try:
-        # Attempt to parse as JSON
-        parsed = json.loads(response.content)
-        
-        # Validate the structure
-        if "tool_call" in parsed:
-            call = parsed["tool_call"]
-            
-            # Ensure required fields are present
-            if "function" not in call or "arguments" not in call:
-                logger.error("[#FF4F4F][PARSER][/#FF4F4F] Invalid tool call format - missing required fields\n")
-                return None
-                
-            # Map the tool call to the expected format
-            call["name"] = call.pop("function", "")
-            call["args"] = call.pop("arguments", {})
-            call["id"] = call.get("id", str(uuid.uuid4()))
-            return call
-        else:
-            logger.warning("[#FF4F4F][PARSER][/#FF4F4F] No 'tool_call' field found in the parsed JSON\n")
-            return None
-            
-    except json.JSONDecodeError as e:
-        logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] JSON decode error: {str(e)}\n")
-        return None
-    except Exception as e:
-        logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] Error parsing tool call: {str(e)}\n")
-        return None
 
 def query_or_respond(state: MessagesState):
     """Handles the logic for querying or responding based on the user's input and system instructions."""
