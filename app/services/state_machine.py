@@ -1,5 +1,3 @@
-import json
-import uuid
 import streamlit as st
 from typing_extensions import TypedDict, List
 from config.logging_config import setup_logging
@@ -46,12 +44,6 @@ def initialize_llm(llm_api_key: str, stream: bool = True) -> ChatMaritalk:
 @tool(response_format="content_and_artifact")
 def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedding_model: str) -> tuple[str, List]:
     """Retrieve relevant documents based on the user query about university files and related subjects."""
-
-    if not pinecone_api_key or not pinecone_index_name or not embedding_model:
-        error_message = "Pinecone API key, Index Name and Embedding Model are required."
-        logger.error(f"Error in 'retrieve' tool: {error_message}\n")
-        return error_message, []
-
     try:
         logger.info(f"[#26F5C9][TOOL][/#26F5C9] [#4169E1][Retrieve with query][/#4169E1] {query}\n")
 
@@ -72,21 +64,16 @@ def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedd
             for doc in retrieved_docs
         )
         return serialized, retrieved_docs
-    
-    except ValueError as ve:
-        # Handle missing parameters
-        logger.error(f"Validation error in 'retrieve' tool: {ve}\n")
-        return f"Validation Error: {ve}", []
 
     except RuntimeError as re:
-        # Handle runtime errors Pinecone or embeddings initialization issues
+        error_msg = f"Tool Error {str(re)}"
         logger.error(f"Runtime error in 'retrieve' tool: {re}\n")
-        return f"Runtime Error: {re}", []
-
+        return error_msg, []
+    
     except Exception as e:
-        # Handle unexpected errors
+        error_msg = f"Tool Error {str(e)}"
         logger.error(f"Unexpected error in 'retrieve' tool: {e}\n")
-        return "An unexpected error occurred while retrieving documents.", []
+        return error_msg, []
 
 def query_or_respond(state: MessagesState):
     """Handles the logic for querying or responding based on the user's input and system instructions."""
@@ -184,15 +171,27 @@ def generate(state: MessagesState):
 
     logger.info("[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Generating final response using knowledge base][/#4169E1]\n")
 
-    # Get recent tool messages (context from retrieve)
+    # Get recent tool messages to extract context
     recent_tool_messages = [
         m for m in reversed(state["messages"]) if m.type == "tool"
     ][::-1]
     logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Recent tool messages][/#4169E1]\n\n{format_chat_messages(recent_tool_messages)}\n")
-
+    
+    # Check if any tool messages were found
     if not recent_tool_messages:
         logger.error("ToolMessage not found. Cannot generate final response.\n")
         return {"messages": state["messages"]}
+
+    # Check if the last tool message contains an error
+    last_tool_msg = recent_tool_messages[0]
+    if "Tool Error" in last_tool_msg.content:
+        last_tool_msg.content = last_tool_msg.content.replace("Tool Error", "")
+
+        # Remove last AI message from history to avoid tool call messsage persisting to next query
+        if st.session_state["messages"] and isinstance(st.session_state["messages"][-1], AIMessage):
+            st.session_state["messages"].pop()
+            
+        raise RuntimeError(last_tool_msg.content)
 
     # Extract context from tool responses
     docs_content = "\n\n".join(t.content for t in recent_tool_messages)
