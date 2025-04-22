@@ -114,8 +114,10 @@ def query_or_respond(state: MessagesState):
     
     # Call the LLM to get initial response
     logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][Validating][/#4169E1] Checking if tool call is needed\n")
+    
     response = llm_for_tools.invoke(prompt)
     content = response.content.strip()
+    
     logger.info(f"[#6819B3][LLM][/#6819B3] [#4169E1][Response content][/#4169E1]\n{content}\n")
     
     # Check if it looks like a JSON response starts with open brace
@@ -145,7 +147,7 @@ def query_or_respond(state: MessagesState):
     # No tool call detected
     else:
         logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][No tool call detected][/#4169E1] Streaming generated response\n")
-        # For direct answers, use streaming in UI
+        # For direct answers use streaming in UI
         with st.chat_message("assistant", avatar=":material/mindfulness:"):
             stream_container = st.empty()
             stream_handler = StreamHandler(stream_container)
@@ -154,7 +156,7 @@ def query_or_respond(state: MessagesState):
             streaming_llm = initialize_llm(llm_api_key, stream=True)
             streaming_llm.callbacks = [stream_handler]
             
-            # Generate a new, streaming response
+            # Generate a new streaming response
             accumulated_response = ""
             for chunk in streaming_llm.stream(prompt):
                 if chunk.content:
@@ -175,22 +177,23 @@ def generate(state: MessagesState):
     recent_tool_messages = [
         m for m in reversed(state["messages"]) if m.type == "tool"
     ][::-1]
+    
     logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Recent tool messages][/#4169E1]\n\n{format_chat_messages(recent_tool_messages)}\n")
     
     # Check if any tool messages were found
     if not recent_tool_messages:
         logger.error("ToolMessage not found. Cannot generate final response.\n")
-        return {"messages": state["messages"]}
+        raise RuntimeError("Error obtaining tool response.")
 
     # Check if the last tool message contains an error
     last_tool_msg = recent_tool_messages[0]
     if "Tool Error" in last_tool_msg.content:
         last_tool_msg.content = last_tool_msg.content.replace("Tool Error", "")
 
-        # Remove last AI message from history to avoid tool call messsage persisting to next query
+        # Remove last AI message from history to avoid message displaying in UI
         if st.session_state["messages"] and isinstance(st.session_state["messages"][-1], AIMessage):
             st.session_state["messages"].pop()
-            
+
         raise RuntimeError(last_tool_msg.content)
 
     # Extract context from tool responses
@@ -205,7 +208,7 @@ def generate(state: MessagesState):
     # Get the last human message
     if conversation_messages:
         last_human_message = conversation_messages[-1]
-        logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Last human message][/#4169E1]\n\n{last_human_message.content}\n")
+        logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][Last human message][/#4169E1] {last_human_message.content}\n")
     else:
         logger.warning("[#6819B3][LLM TOOL][/#6819B3] No human messages found in the conversation history\n")
 
