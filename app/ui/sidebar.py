@@ -38,8 +38,14 @@ def configure_sidebar() -> dict:
         # Web URL input and button for activating indexing
         web_url = st.text_input("Enter the URL to scrape:")
         indexing_mode_enabled = st.button("Activate Indexing", icon=":material/database_upload:")
+        
+        # File indexing section
+        st.markdown("---")
+        st.subheader("File Upload for Indexing")
+        uploaded_file = st.file_uploader("Upload a file (.pdf, .txt, .docx):", type=["pdf", "txt", "docx"])
+        file_indexing_enabled = st.button("Activate File Indexing", icon=":material/database_upload:")
 
-    # Validate required fields for indexing mode
+    # Validate required fields for web indexing
     if indexing_mode_enabled:
         if not web_url or not pinecone_api_key or not pinecone_index_name or not embedding_model:
             st.toast(
@@ -50,9 +56,21 @@ def configure_sidebar() -> dict:
         else:
             st.toast("Indexing activated!",icon=":material/check_circle:")
 
+    if file_indexing_enabled:
+        if not uploaded_file or not pinecone_api_key or not pinecone_index_name or not embedding_model:
+            st.toast(
+                "File indexing failed — please upload a file and fill in all the required fields.",
+                icon=":material/assignment_late:"
+            )
+            file_indexing_enabled = False
+        else:
+            st.toast(f"File indexing activated for {uploaded_file.name}", icon=":material/check_circle:")
+
     indexing_mode_config = {
         "enabled": indexing_mode_enabled,
         "web_url": web_url,
+        "file_indexing_enabled": file_indexing_enabled,   
+        "uploaded_file": uploaded_file,                   
         "pinecone_api_key": pinecone_api_key,
         "pinecone_index_name": pinecone_index_name,
         "embedding_model": embedding_model,
