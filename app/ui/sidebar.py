@@ -8,10 +8,10 @@ def configure_sidebar() -> dict:
         st.title("Settings")
         
         # Variables for LLM API key and Pinecone configuration
-        llm_api_key = st.text_input("LLM API Key", type="password")
+        llm_api_key = st.text_input("Maritalk API Key", type="password")
         pinecone_api_key = st.text_input("Pinecone API Key", type="password")
         pinecone_index_name = st.text_input("Pinecone Index Name")
-        embedding_model = st.text_input("Embedding Model", value="nomic-embed-text")
+        embedding_model = st.text_input("Ollama Embedding Model", value="nomic-embed-text")
 
         # Initialization of session state variables
         if 'llm_api_key' not in st.session_state:
@@ -42,13 +42,13 @@ def configure_sidebar() -> dict:
     # Validate required fields for indexing mode
     if indexing_mode_enabled:
         if not web_url or not pinecone_api_key or not pinecone_index_name or not embedding_model:
-            st.warning(
+            st.toast(
                 "Indexing failed — you must provide a valid URL and fill in all the required fields.",
                 icon=":material/assignment_late:"
             )
             indexing_mode_enabled = False
         else:
-            st.success("Indexing activated!",icon=":material/check_circle:")
+            st.toast("Indexing activated!",icon=":material/check_circle:")
 
     indexing_mode_config = {
         "enabled": indexing_mode_enabled,
