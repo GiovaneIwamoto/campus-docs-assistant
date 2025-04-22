@@ -122,6 +122,7 @@ def query_or_respond(state: MessagesState):
     
     # Check if it looks like a JSON response starts with open brace
     if content.startswith('{'):
+        st.toast("I will use the tool to get more information, please wait a moment.", icon=":material/robot:")
         logger.info("[#6819B3][LLM][/#6819B3] [#4169E1][Potential tool call detected][/#4169E1]\n")
         
         # Try to balance braces if they're unbalanced
