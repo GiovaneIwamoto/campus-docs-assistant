@@ -20,21 +20,21 @@ def handle_user_input(prompt: str):
     # Check for LLM API key
     llm_api_key = st.session_state.get("llm_api_key")
     if not llm_api_key:
-        st.info("Please add your LLM API key.", icon=":material/passkey:")
+        st.toast("Please add your LLM API key.", icon=":material/passkey:")
         logger.warning("LLM API Key is missing. User cannot proceed without it.\n")
         return
     
     # Define the Pinecone API key
     pinecone_api_key = st.session_state.get("pinecone_api_key")
     if not pinecone_api_key:
-        st.info("Please add your Pinecone API key.", icon=":material/passkey:")
+        st.toast("Please add your Pinecone API key.", icon=":material/passkey:")
         logger.warning("LLM API Key is missing. User cannot proceed without it.\n")
         return
 
     # Define the Pinecone index name
     pinecone_index_name = st.session_state.get("pinecone_index_name")
     if not pinecone_index_name:
-        st.info("Please add your Pinecone index name.", icon=":material/passkey:")
+        st.toast("Please add your Pinecone index name.", icon=":material/passkey:")
         logger.warning("Pinecone index name is missing. User cannot proceed without it.\n")
         return
 
