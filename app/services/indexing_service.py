@@ -1,4 +1,10 @@
+import os
+import docx
 import streamlit as st
+from io import BytesIO
+from typing import Union
+from PyPDF2 import PdfReader
+from langchain_core.documents import Document
 from services.web_scraper import get_rendered_webpage
 from services.vectorstore_service import initialize_vectorstore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -39,6 +45,88 @@ def run_indexing_mode(config: dict):
                 st.toast('Chunks indexed successfully!', icon=":material/cloud_upload:")
 
                 st.status(f"Web page content indexed successfully at Pinecone!", state="complete")
+
+        except ValueError as ve:
+            st.toast(f"A value error occurred during indexing process.", icon=":material/settings_alert:")
+            with st.expander("Error details"):
+                st.write(f"A value error occurred: {ve}")
+
+        except RuntimeError as re:
+            st.toast(f"A runtime error occurred during indexing process.", icon=":material/database_off:")
+            with st.expander("Error details"):
+                st.write(f"A runtime error occurred: {re}")
+
+        except Exception as e:
+            st.toast(f"An unexpected error occurred during indexing process.", icon=":material/cloud_off:")
+            with st.expander("Error details"):
+                st.write(f"An unexpected error occurred: {e}")
+            
+
+def extract_text_from_file(file: Union[BytesIO, st.runtime.uploaded_file_manager.UploadedFile], filetype: str) -> str:
+    """
+    Extract text content from a file based on its type.
+
+    Args:
+        file (Union[BytesIO, UploadedFile]): The uploaded file.
+        filetype (str): File extension indicating the type (e.g., .pdf, .txt, .docx).
+    """
+        
+    if filetype == ".pdf":
+        reader = PdfReader(file)
+        return "\n".join(page.extract_text() or "" for page in reader.pages)
+    
+    elif filetype == ".txt":
+        return file.getvalue().decode("utf-8")  
+
+    elif filetype == ".docx":
+        doc = docx.Document(file)
+        return "\n".join([para.text for para in doc.paragraphs])
+
+    else:
+        raise ValueError(f"Unsupported file type: {filetype}")
+
+# Função principal para indexar o conteúdo do arquivo
+def run_file_indexing_mode(config: dict, file):
+    """
+    Run the file indexing mode to extract text from uploaded files and index the content into Pinecone.
+
+    Args:
+        config (dict): Configuration dictionary containing Pinecone credentials and embedding model.
+        file: The uploaded file from Streamlit's file_uploader.
+    """
+    pinecone_api_key = config.get("pinecone_api_key")
+    pinecone_index_name = config.get("pinecone_index_name")
+    embedding_model = config.get("embedding_model")
+    
+    with st.chat_message("assistant", avatar=":material/cognition_2:"):
+        try:
+            file_extension = os.path.splitext(file.name)[-1].lower()
+
+            with st.spinner(f"Processing file {file.name} and indexing...", show_time=True):
+
+                # Extract text from the uploaded file
+                extracted_text = extract_text_from_file(file, file_extension)
+                st.toast('File content extracted successfully!', icon=":material/draft:")
+
+
+                # Create a LangChain document
+                doc = Document(page_content=extracted_text, metadata={"source": file.name})
+                st.toast('Pinecone initialized successfully!', icon=":material/table_eye:")   
+                             
+                # Split the document into chunks
+                text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+                all_splits = text_splitter.split_documents([doc])
+                st.toast('File content chunked successfully!', icon=":material/package:")
+
+                # Display number of chunks created
+                st.status(f"Number of chunks created: {len(all_splits)}", state="complete")
+
+                # Initialize Pinecone and index the chunks
+                vector_store = initialize_vectorstore(pinecone_api_key, pinecone_index_name, embedding_model)
+                vector_store.add_documents(documents=all_splits)
+                st.toast('Chunks indexed successfully!', icon=":material/cloud_upload:")
+
+                st.status(f"File {file.name} indexed successfully at Pinecone!", state="complete")
 
         except ValueError as ve:
             st.toast(f"A value error occurred during indexing process.", icon=":material/settings_alert:")
