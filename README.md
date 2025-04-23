@@ -31,7 +31,7 @@ This legend provides a clear understanding of the avatars used in the applicatio
 
 This project was initially inspired by the specific challenges observed at the Federal University of Mato Grosso do Sul (UFMS), but the problem it addresses is common across many universities. In academic settings, students often struggle to obtain simple pieces of information due to the overwhelming complexity and volume of official documentation. Regulations, guidelines, and institutional policies are typically stored in dense, legalistic documents that are not user-friendly or easy to navigate.
 
-In practice, students seeking a single answer—such as internship requirements, enrollment rules, or calendar dates — frequently end up reading through dozens of pages of official publications. Frustrated by this experience, many resort to contacting academic coordinators directly. However, from the administration's perspective, this creates a high volume of repetitive inquiries that could have been answered if students had easier access to the right part of the documentation.
+In practice, students seeking a single answer — such as internship requirements, enrollment rules, or calendar dates — frequently end up reading through dozens of pages of official publications. Frustrated by this experience, many resort to contacting academic coordinators directly. However, from the administration's perspective, this creates a high volume of repetitive inquiries that could have been answered if students had easier access to the right part of the documentation.
 
 This cycle results in inefficiency and dissatisfaction on both sides: students receive vague or delayed responses, and coordinators are overwhelmed by simple questions that require them to redirect students to existing official documents. The Campus Docs Assistant was developed to break this cycle, acting as a bridge between formal documentation and practical student needs. By enabling natural language interaction and intelligent information retrieval, it aims to reduce friction, save time, and promote autonomous access to institutional knowledge.
 
@@ -41,101 +41,64 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 **AI-Powered Query Handling**
 
-- **Maritalk Integration**: The assistant uses the Maritalk Large Language Model to process user queries and generate intelligent responses. Maritalk is optimized for conversational AI and supports advanced natural language understanding.
-- **Tool Decision System**: The assistant evaluates user queries to decide whether to call external tool or respond directly based on the conversation context.
+- The assistant processes user queries using the Maritalk large language model, which is optimized for conversational AI and advanced natural language understanding.
 
-**Document Retrieval with Pinecone**
+- It includes a tool decision system that evaluates the context of each query to determine whether to generate a direct response or trigger external tools, ensuring intelligent and context-aware interactions.
 
-- **Vector Search**: The assistant uses Pinecone, a high-performance vector database, to perform similarity searches. This allows it to retrieve the most relevant documents based on the user's query.
-- **Ollama Embeddings**: The assistant leverages Ollama's embedding models to convert text into vector representations, enabling efficient and accurate similarity searches.
+**Smart Document Retrieval**
+
+- The assistant performs semantic search using Pinecone, a high-performance vector database, allowing retrieval of the most relevant documents based on meaning rather than keywords.
+
+- It uses Ollama embeddings to convert documents and user queries into vector representations, enabling fast and accurate similarity matching for academic and administrative content.
 
 **Context-Aware Responses**
 
-- **Retrieve and Generate**: The assistant combines retrieved document content with user queries to generate precise and context-aware responses. This is achieved using LangChain's RAG capabilities.
-- **Dynamic Context Management**: The assistant maintains a clean and concise conversation history, ensuring that responses are relevant and free from unnecessary information.
+- Implements a retrieve and generate mechanism that blends user queries with retrieved content to produce accurate, relevant answers. Leveraging LangChain's Retrieval-Augmented Generation logic under the hood.
+
+- Maintains dynamic context management, keeping the conversation history clean and focused to ensure that responses remain concise and contextually accurate.
 
 **Web Scraping and Indexing**
 
-- **Playwright Integration**: The assistant uses Playwright to scrape and render web pages, enabling it to index external content into Pinecone for future queries.
-- **Chunking with LangChain**: The assistant splits large documents into manageable chunks using LangChain's text splitters, ensuring efficient indexing and retrieval.
+- Integrates Playwright to render and scrape dynamic web pages, allowing the assistant to index and respond with external institutional content.
+
+- Utilizes intelligent document chunking to split large texts into digestible parts for efficient indexing and retrieval, enabling high performance even with large datasets.
 
 **Interactive User Interface**
 
-- **Streamlit Framework**: The assistant features an intuitive and interactive UI built with Streamlit. Users can input queries, view responses, and configure settings directly from the web interface.
-- **Real-Time Feedback**: The assistant provides real-time feedback through toasts, spinners, and dynamic updates, enhancing the user experience.
+- Built with Streamlit, the assistant features a responsive and interactive UI where users can submit queries, view answers, and configure behavior—all within an accessible web interface.
 
 **Modular and Scalable Architecture**
 
-- **LangChain State Machine**: The assistant uses LangChain's state machine and ToolNode to manage the flow of interactions, ensuring modularity and scalability.
-- **Error Handling**: Comprehensive error handling mechanisms are in place to manage runtime errors, API issues, and unexpected failures gracefully.
+- Employs a LangGraph-based state machine, where conversational logic is handled through dynamic workflows—ensuring flexibility in managing tool calls, memory, and state transitions.
 
----
-
-### **TECHNOLOGIES**
-
-**LangChain**
-
-- **Prompt Engineering**: Custom prompts for tool decision-making and RAG.
-- **State Management**: Managing conversation history and tool calls.
-- **Text Processing**: Splitting and formatting text for efficient retrieval and response generation.
-
-**LangGraph**
-
-- **Conversational Flow Control**: Defining dynamic workflows using nodes and edges to handle tool calls, decision-making, and state transitions.
-- **State Management**: Persisting and transitioning structured conversation states across different stages like query interpretation, tool usage, and response generation.
-- **Tool Integration**: Seamlessly incorporating LangChain tools and LLMs in a modular and traceable way, enabling complex interactions with memory, branching, and fallback handling.
-
-**Pinecone**
-
-- **Similarity Search**: Retrieving the most relevant documents based on user queries.
-- **Scalability**: Handling large datasets with low latency and high throughput.
-
-**Ollama**
-
-- **Text Vectorization**: Converting text into vector representations for similarity search.
-- **Custom Embeddings**: Supporting domain-specific embeddings for academic and administrative content.
-
-**Maritalk**
-
-- **Natural Language Understanding**: Processing user queries and generating intelligent responses.
-- **Conversational AI**: Supporting dynamic and context-aware interactions.
-
-**Streamlit**
-
-- **Web Interface**: Building an interactive and user-friendly UI.
-- **Real-Time Updates**: Providing dynamic feedback and updates to users.
-
-**Playwright**
-
-- **Web Scraping**: Rendering and extracting content from web pages.
-- **Automation**: Automating the process of indexing external content.
+- Designed with robust error handling to gracefully manage runtime issues, API failures, and unexpected user input across various system components.
 
 ---
 
 ### **INSTALLATION GUIDE**
 
-1. **Clone the Repository**
-   ```bash
-   git clone https://github.com/GiovaneIwamoto/campus-docs-assistant.git
-   cd campus-docs-assistant
-   ```
+**Clone the Repository**
+```ruby
+$ git clone https://github.com/GiovaneIwamoto/campus-docs-assistant.git
+$ cd campus-docs-assistant
+```
 
-2. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+**Install Dependencies**
+```ruby
+$ pip install -r requirements.txt
+```
 
-3. **Install Playwright**
-   ```bash
-   pip install playwright
-   playwright install
-   ```
+**Install Playwright**
+```ruby
+$ pip install playwright
+$ playwright install
+```
 
-5. **Run the Application**
-   ```bash
-   cd app
-   streamlit run app.py
-   ```
+**Run the Application**
+```ruby
+$ cd app
+$ streamlit run app.py
+```
 
 ---
 
