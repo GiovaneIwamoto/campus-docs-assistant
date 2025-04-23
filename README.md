@@ -131,3 +131,19 @@ The project integrates cutting-edge tools such as **LangChain**, **Pinecone**, *
 ### **4. Configuration**
 - Use the sidebar to configure API keys, Pinecone index name, and embedding model.
 
+---
+
+### **AVATARS**
+
+| Avatar                            | Usage                                   | Meaning |
+|-----------------------------------|-----------------------------------------|-------------------------------------------|
+| ![face](/assets/face.svg)                     | User messages                           | Represents the user interacting with the assistant.                   |
+| ![smart_toy](/assets/smart_toy.svg)           | Assistant messages                      | Represents the AI assistant responses to the user.                    |
+| ![mindfulness](/assets/mindfulness.svg)       | Assistant streaming direct responses    | Represents responses generated using the model's own knowledge.       |
+| ![psychology](/assets/psychology.svg)         | Assistant streaming tool-based responses| Represents intelligence and analysis during tool-based responses.     |
+| ![cognition](/assets/cognition.svg)           | Assistant during indexing operations    | Represents cognitive processing during indexing tasks.                |
+| ![psychology_alt](/assets/psychology_alt.svg) | System messages during errors           | Represents system-level guidance or chat history resets.              |
+
+---
+
+This legend provides a clear understanding of the avatars used in the application and their significance in different contexts.
