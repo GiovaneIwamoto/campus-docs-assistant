@@ -6,24 +6,34 @@
 
 ### **INTRODUCTION**
 
-The **Campus Docs Assistant** is a powerful AI-driven application designed to assist students and faculty members of the Federal University of Mato Grosso do Sul (UFMS) in accessing legal, academic, and administrative documents. This tool simplifies the process of retrieving information about university policies, mandatory internships, enrollment procedures, faculty contacts, and more. By leveraging state-of-the-art AI technologies, the assistant provides accurate, concise, and context-aware responses to user queries.
+The Campus Docs Assistant is an AI-powered platform designed to streamline access to academic and administrative information within universities. Through a user-friendly chatbot interface, students, faculty, and staff can interact naturally with an intelligent assistant capable of answering questions, retrieving official documents, and offering support grounded in institutional data. This natural language interaction simplifies complex information retrieval tasks, eliminating the need to manually navigate dense and often confusing documentation.
 
-The project integrates cutting-edge tools such as **LangChain**, **Pinecone**, **Ollama**, and **Streamlit** to deliver a seamless and interactive user experience. It is built with modularity, scalability, and maintainability in mind, making it a robust solution for academic and administrative needs.
+By leveraging state-of-the-art AI technologies, the assistant understands complex queries, performs context-aware document retrieval, and generates accurate and concise responses in real time. Its web-based interface ensures accessibility while promoting autonomy in accessing institutional knowledge. This makes the Campus Docs Assistant a valuable tool for educational institutions aiming to enhance user experience, reduce repetitive inquiries, and improve the overall efficiency of information management.
 
 ---
 
 ### **AVATARS**
 
-| Avatar                            | Usage                                   | Meaning |
-|-----------------------------------|-----------------------------------------|-------------------------------------------|
-| ![face](/assets/face.svg)                     | User messages                           | Represents the user interacting with the assistant.                   |
-| ![smart_toy](/assets/smart_toy.svg)           | Assistant messages                      | Represents the AI assistant responses to the user.                    |
-| ![mindfulness](/assets/mindfulness.svg)       | Assistant streaming direct responses    | Represents responses generated using the model's own knowledge.       |
-| ![psychology](/assets/psychology.svg)         | Assistant streaming tool-based responses| Represents intelligence and analysis during tool-based responses.     |
-| ![cognition](/assets/cognition.svg)           | Assistant during indexing operations    | Represents cognitive processing during indexing tasks.                |
-| ![psychology_alt](/assets/psychology_alt.svg) | System messages during errors           | Represents system-level guidance or chat history resets.              |
+| Avatar                         | Usage                       | Meaning                   |
+|--------------------------------|-----------------------------|---------------------------|
+| ![face](/assets/face.svg)                     | User messages                           | Represents the user interacting with the assistant              |
+| ![smart_toy](/assets/smart_toy.svg)           | Assistant messages                      | Represents the AI assistant responses to the user               |
+| ![mindfulness](/assets/mindfulness.svg)       | Assistant streaming direct responses    | Represents responses generated using the model's own knowledge  |
+| ![psychology](/assets/psychology.svg)         | Assistant streaming tool-based responses| Represents intelligence and analysis during tool-based responses|
+| ![cognition](/assets/cognition.svg)           | Assistant during indexing operations    | Represents cognitive processing during indexing tasks           |
+| ![psychology_alt](/assets/psychology_alt.svg) | Assistant messages during errors        | Represents system-level guidance or chat history resets         |
 
 This legend provides a clear understanding of the avatars used in the application and their significance in different contexts.
+
+---
+
+### **MOTIVATION**
+
+This project was initially inspired by the specific challenges observed at the Federal University of Mato Grosso do Sul (UFMS), but the problem it addresses is common across many universities. In academic settings, students often struggle to obtain simple pieces of information due to the overwhelming complexity and volume of official documentation. Regulations, guidelines, and institutional policies are typically stored in dense, legalistic documents that are not user-friendly or easy to navigate.
+
+In practice, students seeking a single answer—such as internship requirements, enrollment rules, or calendar dates — frequently end up reading through dozens of pages of official publications. Frustrated by this experience, many resort to contacting academic coordinators directly. However, from the administration's perspective, this creates a high volume of repetitive inquiries that could have been answered if students had easier access to the right part of the documentation.
+
+This cycle results in inefficiency and dissatisfaction on both sides: students receive vague or delayed responses, and coordinators are overwhelmed by simple questions that require them to redirect students to existing official documents. The Campus Docs Assistant was developed to break this cycle, acting as a bridge between formal documentation and practical student needs. By enabling natural language interaction and intelligent information retrieval, it aims to reduce friction, save time, and promote autonomous access to institutional knowledge.
 
 ---
 
@@ -145,3 +155,5 @@ This legend provides a clear understanding of the avatars used in the applicatio
 
 ### **4. Configuration**
 - Use the sidebar to configure API keys, Pinecone index name, and embedding model.
+
+---
