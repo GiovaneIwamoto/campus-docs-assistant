@@ -1,17 +1,14 @@
 import os
-import docx
 import streamlit as st
-from io import BytesIO
-from typing import Union
-from PyPDF2 import PdfReader
 from langchain_core.documents import Document
-from services.web_scraper import get_rendered_webpage
 from services.vectorstore_service import initialize_vectorstore
+from utils.text_extractor import extract_text_from_file
+from utils.web_scraper import get_rendered_webpage
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-def run_indexing_mode(config: dict):
+def run_web_indexing_mode(config: dict):
     """
-    Run the indexing mode to scrape a web page and index its content into Pinecone.
+    Run the web indexing mode to scrape a web page and index its content into Pinecone.
     
     Args:
         config (dict): Configuration dictionary containing the web URL, Pinecone API key,
@@ -60,32 +57,7 @@ def run_indexing_mode(config: dict):
             st.toast(f"An unexpected error occurred during indexing process.", icon=":material/cloud_off:")
             with st.expander("Error details"):
                 st.write(f"An unexpected error occurred: {e}")
-            
 
-def extract_text_from_file(file: Union[BytesIO, st.runtime.uploaded_file_manager.UploadedFile], filetype: str) -> str:
-    """
-    Extract text content from a file based on its type.
-
-    Args:
-        file (Union[BytesIO, UploadedFile]): The uploaded file.
-        filetype (str): File extension indicating the type (e.g., .pdf, .txt, .docx).
-    """
-        
-    if filetype == ".pdf":
-        reader = PdfReader(file)
-        return "\n".join(page.extract_text() or "" for page in reader.pages)
-    
-    elif filetype == ".txt":
-        return file.getvalue().decode("utf-8")  
-
-    elif filetype == ".docx":
-        doc = docx.Document(file)
-        return "\n".join([para.text for para in doc.paragraphs])
-
-    else:
-        raise ValueError(f"Unsupported file type: {filetype}")
-
-# Função principal para indexar o conteúdo do arquivo
 def run_file_indexing_mode(config: dict, file):
     """
     Run the file indexing mode to extract text from uploaded files and index the content into Pinecone.
@@ -107,7 +79,6 @@ def run_file_indexing_mode(config: dict, file):
                 # Extract text from the uploaded file
                 extracted_text = extract_text_from_file(file, file_extension)
                 st.toast('File content extracted successfully!', icon=":material/draft:")
-
 
                 # Create a LangChain document
                 doc = Document(page_content=extracted_text, metadata={"source": file.name})
