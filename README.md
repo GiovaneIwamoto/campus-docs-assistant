@@ -29,7 +29,7 @@ This legend provides a clear understanding of the avatars used in the applicatio
 
 ## **MOTIVATION**
 
-This project was initially inspired by the specific challenges observed at the Federal University of Mato Grosso do Sul (UFMS), but the problem it addresses is common across many universities. In academic settings, students often struggle to obtain simple pieces of information due to the overwhelming complexity and volume of official documentation. Regulations, guidelines, and institutional policies are typically stored in dense, legalistic documents that are not user-friendly or easy to navigate.
+This project was initially inspired by the specific challenges observed at the Federal *University of Mato Grosso do Sul* (UFMS), but the problem it addresses is common across many universities. In academic settings, students often struggle to obtain simple pieces of information due to the overwhelming complexity and volume of official documentation. Regulations, guidelines, and institutional policies are typically stored in dense, legalistic documents that are not user-friendly or easy to navigate.
 
 In practice, students seeking a single answer — such as internship requirements, enrollment rules, or calendar dates — frequently end up reading through dozens of pages of official publications. Frustrated by this experience, many resort to contacting academic coordinators directly. However, from the administration's perspective, this creates a high volume of repetitive inquiries that could have been answered if students had easier access to the right part of the documentation.
 
@@ -39,35 +39,35 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ## **FEATURES**
 
-**AI-Powered Query Handling**
+![network](/assets/network.svg) **AI-Powered Query Handling**
 
 - The assistant processes user queries using the Maritalk large language model, which is optimized for conversational AI and advanced natural language understanding.
 
 - It includes a tool decision system that evaluates the context of each query to determine whether to generate a direct response or trigger external tools, ensuring intelligent and context-aware interactions.
 
-**Smart Document Retrieval**
+![search_engine](/assets/search_insights.svg) **Smart Document Retrieval**
 
 - The assistant performs semantic search using Pinecone, a high-performance vector database, allowing retrieval of the most relevant documents based on meaning rather than keywords.
 
 - It uses Ollama embeddings to convert documents and user queries into vector representations, enabling fast and accurate similarity matching for academic and administrative content.
 
-**Context-Aware Responses**
+![contextual](/assets/contextual.svg) **Context-Aware Responses**
 
 - Implements a retrieve and generate mechanism that blends user queries with retrieved content to produce accurate, relevant answers. Leveraging LangChain's Retrieval-Augmented Generation logic under the hood.
 
 - Maintains dynamic context management, keeping the conversation history clean and focused to ensure that responses remain concise and contextually accurate.
 
-**Web Scraping and Indexing**
+![internet](/assets/internet.svg) **Web Scraping and Indexing**
 
 - Integrates Playwright to render and scrape dynamic web pages, allowing the assistant to index and respond with external institutional content.
 
 - Utilizes intelligent document chunking to split large texts into digestible parts for efficient indexing and retrieval, enabling high performance even with large datasets.
 
-**Interactive User Interface**
+![forum](/assets/forum.svg) **Interactive User Interface**
 
 - Built with Streamlit, the assistant features a responsive and interactive UI where users can submit queries, view answers, and configure behavior—all within an accessible web interface.
 
-**Modular and Scalable Architecture**
+![graph](/assets/graph.svg) **Modular and Scalable Architecture**
 
 - Employs a LangGraph-based state machine, where conversational logic is handled through dynamic workflows—ensuring flexibility in managing tool calls, memory, and state transitions.
 
@@ -75,46 +75,16 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ---
 
-## **INSTALLATION GUIDE**
-
-**Clone the Repository**
-```ruby
-$ git clone https://github.com/GiovaneIwamoto/campus-docs-assistant.git
-$ cd campus-docs-assistant
-```
-
-**Install Dependencies**
-```ruby
-$ pip install -r requirements.txt
-```
-
-**Install Playwright**
-```ruby
-$ pip install playwright
-$ playwright install
-```
-
-**Run the Application**
-```ruby
-$ cd app
-$ streamlit run app.py
-```
-
----
-
 ## **USAGE**
 
-### Knowledge Base Assistant Setup & Usage Guide
+#### Knowledge Base Assistant Setup & Usage Guide
 
 This guide outlines how to use the Campus Docs Assistant in two distinct scenarios: creating and managing a new knowledge base (for coordinators/institutions) or accessing and querying an existing knowledge base (for students/users).
 
-### System Requirements
-
 All users, regardless of role, need the following:
-
-- Ollama installed and running locally
-- Access to a MaritTalk API key
-- Access to Pinecone credentials
+   - Ollama installed and running locally
+   - Access to a MaritTalk API key
+   - Access to Pinecone credentials
 
 ### ![admin_panel](/assets/admin_panel.svg) Role-Based Configuration: Coordinators / Institutions
 
@@ -146,12 +116,42 @@ As a student or end-user, you will:
 
 >[!IMPORTANT]
 >**Avoid modifying the shared knowledge base**:
+>
 >While technically possible to index content to a shared knowledge base, this is not recommended
 >If you need your own knowledge base, create a separate Pinecone index
 
 >[!WARNING]
 > **Model Compatibility**: The dimension of your Pinecone index must match the output dimension of your embedding model
+>
 >**Ollama Requirements**: Ensure Ollama is running whenever you use the assistant
+>
 >**Personal Knowledge Bases**: If you want to create your own knowledge base, create a separate Pinecone index rather than modifying a shared one
+
+---
+
+## **INSTALLATION GUIDE**
+
+**Clone the Repository**
+```ruby
+$ git clone https://github.com/GiovaneIwamoto/campus-docs-assistant.git
+$ cd campus-docs-assistant
+```
+
+**Install Dependencies**
+```ruby
+$ pip install -r requirements.txt
+```
+
+**Install Playwright**
+```ruby
+$ pip install playwright
+$ playwright install
+```
+
+**Run the Application**
+```ruby
+$ cd app
+$ streamlit run app.py
+```
 
 ---
