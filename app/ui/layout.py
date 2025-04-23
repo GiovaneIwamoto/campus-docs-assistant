@@ -9,9 +9,12 @@ def set_page_config():
         layout="centered",
         initial_sidebar_state="expanded",
         menu_items={
-            'Get Help': 'https://github.com/GiovaneIwamoto/campus-docs-assistant/wiki',
+            'Get Help': 'https://github.com/GiovaneIwamoto/campus-docs-assistant',
             'Report a bug': "https://github.com/GiovaneIwamoto/campus-docs-assistant/issues",
-            'About': ""
+            'About': """
+            ### Thanks for checking out the project!
+            If you find it useful, please consider giving it a ★ on [GitHub](https://github.com/GiovaneIwamoto/campus-docs-assistant).
+            It really helps support the project and keeps it growing! Your feedback and support are greatly appreciated!"""
         }
     )
 
