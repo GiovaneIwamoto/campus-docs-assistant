@@ -7,6 +7,12 @@ logger = logging.getLogger(__name__)
 def get_rendered_webpage(url: str) -> Document:
     """
     Scrape and render the content of a webpage using Playwright.
+
+    Args:
+        url (str): The URL of the webpage to scrape.
+
+    Returns:
+        Document: A Langchain Document object containing the rendered HTML content.
     """
     try:
         with sync_playwright() as p:
