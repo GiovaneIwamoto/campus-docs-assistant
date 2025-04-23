@@ -12,6 +12,21 @@ The project integrates cutting-edge tools such as **LangChain**, **Pinecone**, *
 
 ---
 
+### **AVATARS**
+
+| Avatar                            | Usage                                   | Meaning |
+|-----------------------------------|-----------------------------------------|-------------------------------------------|
+| ![face](/assets/face.svg)                     | User messages                           | Represents the user interacting with the assistant.                   |
+| ![smart_toy](/assets/smart_toy.svg)           | Assistant messages                      | Represents the AI assistant responses to the user.                    |
+| ![mindfulness](/assets/mindfulness.svg)       | Assistant streaming direct responses    | Represents responses generated using the model's own knowledge.       |
+| ![psychology](/assets/psychology.svg)         | Assistant streaming tool-based responses| Represents intelligence and analysis during tool-based responses.     |
+| ![cognition](/assets/cognition.svg)           | Assistant during indexing operations    | Represents cognitive processing during indexing tasks.                |
+| ![psychology_alt](/assets/psychology_alt.svg) | System messages during errors           | Represents system-level guidance or chat history resets.              |
+
+This legend provides a clear understanding of the avatars used in the application and their significance in different contexts.
+
+---
+
 ### **FEATURES**
 
 **AI-Powered Query Handling**
@@ -48,39 +63,39 @@ The project integrates cutting-edge tools such as **LangChain**, **Pinecone**, *
 
 ### **TECHNOLOGIES**
 
-> **LangChain**
+**LangChain**
 
 - **Prompt Engineering**: Custom prompts for tool decision-making and RAG.
 - **State Management**: Managing conversation history and tool calls.
 - **Text Processing**: Splitting and formatting text for efficient retrieval and response generation.
 
-> **LangGraph**
+**LangGraph**
 
 - **Conversational Flow Control**: Defining dynamic workflows using nodes and edges to handle tool calls, decision-making, and state transitions.
 - **State Management**: Persisting and transitioning structured conversation states across different stages like query interpretation, tool usage, and response generation.
 - **Tool Integration**: Seamlessly incorporating LangChain tools and LLMs in a modular and traceable way, enabling complex interactions with memory, branching, and fallback handling.
 
-> **Pinecone**
+**Pinecone**
 
 - **Similarity Search**: Retrieving the most relevant documents based on user queries.
 - **Scalability**: Handling large datasets with low latency and high throughput.
 
-> **Ollama**
+**Ollama**
 
 - **Text Vectorization**: Converting text into vector representations for similarity search.
 - **Custom Embeddings**: Supporting domain-specific embeddings for academic and administrative content.
 
-> **Maritalk**
+**Maritalk**
 
 - **Natural Language Understanding**: Processing user queries and generating intelligent responses.
 - **Conversational AI**: Supporting dynamic and context-aware interactions.
 
-> **Streamlit**
+**Streamlit**
 
 - **Web Interface**: Building an interactive and user-friendly UI.
 - **Real-Time Updates**: Providing dynamic feedback and updates to users.
 
-> **Playwright**
+**Playwright**
 
 - **Web Scraping**: Rendering and extracting content from web pages.
 - **Automation**: Automating the process of indexing external content.
@@ -130,20 +145,3 @@ The project integrates cutting-edge tools such as **LangChain**, **Pinecone**, *
 
 ### **4. Configuration**
 - Use the sidebar to configure API keys, Pinecone index name, and embedding model.
-
----
-
-### **AVATARS**
-
-| Avatar                            | Usage                                   | Meaning |
-|-----------------------------------|-----------------------------------------|-------------------------------------------|
-| ![face](/assets/face.svg)                     | User messages                           | Represents the user interacting with the assistant.                   |
-| ![smart_toy](/assets/smart_toy.svg)           | Assistant messages                      | Represents the AI assistant responses to the user.                    |
-| ![mindfulness](/assets/mindfulness.svg)       | Assistant streaming direct responses    | Represents responses generated using the model's own knowledge.       |
-| ![psychology](/assets/psychology.svg)         | Assistant streaming tool-based responses| Represents intelligence and analysis during tool-based responses.     |
-| ![cognition](/assets/cognition.svg)           | Assistant during indexing operations    | Represents cognitive processing during indexing tasks.                |
-| ![psychology_alt](/assets/psychology_alt.svg) | System messages during errors           | Represents system-level guidance or chat history resets.              |
-
----
-
-This legend provides a clear understanding of the avatars used in the application and their significance in different contexts.
