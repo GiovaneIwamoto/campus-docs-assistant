@@ -4,7 +4,7 @@
 
 ![image_install_guide](image/install_guide.png)
 
-### **INTRODUCTION**
+## **INTRODUCTION**
 
 The Campus Docs Assistant is an AI-powered platform designed to streamline access to academic and administrative information within universities. Through a user-friendly chatbot interface, students, faculty, and staff can interact naturally with an intelligent assistant capable of answering questions, retrieving official documents, and offering support grounded in institutional data. This natural language interaction simplifies complex information retrieval tasks, eliminating the need to manually navigate dense and often confusing documentation.
 
@@ -12,7 +12,7 @@ By leveraging state-of-the-art AI technologies, the assistant understands comple
 
 ---
 
-### **AVATARS**
+## **AVATARS**
 
 | Avatar                         | Usage                       | Meaning                   |
 |--------------------------------|-----------------------------|---------------------------|
@@ -27,7 +27,7 @@ This legend provides a clear understanding of the avatars used in the applicatio
 
 ---
 
-### **MOTIVATION**
+## **MOTIVATION**
 
 This project was initially inspired by the specific challenges observed at the Federal University of Mato Grosso do Sul (UFMS), but the problem it addresses is common across many universities. In academic settings, students often struggle to obtain simple pieces of information due to the overwhelming complexity and volume of official documentation. Regulations, guidelines, and institutional policies are typically stored in dense, legalistic documents that are not user-friendly or easy to navigate.
 
@@ -37,7 +37,7 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ---
 
-### **FEATURES**
+## **FEATURES**
 
 **AI-Powered Query Handling**
 
@@ -75,7 +75,7 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ---
 
-### **INSTALLATION GUIDE**
+## **INSTALLATION GUIDE**
 
 **Clone the Repository**
 ```ruby
@@ -102,21 +102,56 @@ $ streamlit run app.py
 
 ---
 
-### **USAGE**
+## **USAGE**
 
-### **1. Query Handling**
-- Enter your query in the chat input box.
-- The assistant will decide whether to call a tool or respond directly.
+### Knowledge Base Assistant Setup & Usage Guide
 
-### **2. Document Retrieval**
-- Queries related to university documents will trigger the retrieve tool.
-- The assistant will fetch the most relevant documents from Pinecone and generate a response.
+This guide outlines how to use the Campus Docs Assistant in two distinct scenarios: creating and managing a new knowledge base (for coordinators/institutions) or accessing and querying an existing knowledge base (for students/users).
 
-### **3. Web Scraping and Indexing**
-- Use the sidebar to enable indexing mode.
-- Enter a URL to scrape and index its content into Pinecone.
+### System Requirements
 
-### **4. Configuration**
-- Use the sidebar to configure API keys, Pinecone index name, and embedding model.
+All users, regardless of role, need the following:
+
+- Ollama installed and running locally
+- Access to a MaritTalk API key
+- Access to Pinecone credentials
+
+### ![admin_panel](/assets/admin_panel.svg) Role-Based Configuration: Coordinators / Institutions
+
+As a coordinator or institution representative, you are responsible for:
+
+**Creating and configuring the Pinecone vector database**:
+- Create a Pinecone index with the appropriate dimension size
+- Current recommendation: Use `nomic-embed-text` embedding model with dimension $768$
+- Ensure the index dimension matches your chosen embedding model dimension
+
+**Indexing content into the knowledge base**:
+- Upload PDFs containing institutional content
+- Add URLs for web-based institutional resources
+- Maintain and update the knowledge base as needed
+
+**Providing access credentials to students**:
+- Share the Pinecone API key and index name
+- Provide MaritTalk API access information
+- Communicate which embedding model students should use
+
+### ![group](/assets/group.svg) Role-Based Configuration: Students / Users
+
+As a student or end-user, you will:
+
+**Use existing knowledge base credentials**:
+- Obtain necessary credentials from your coordinator/institution
+- Configure the assistant with these credentials
+- Query the knowledge base using natural language
+
+>[!IMPORTANT]
+>**Avoid modifying the shared knowledge base**:
+>While technically possible to index content to a shared knowledge base, this is not recommended
+>If you need your own knowledge base, create a separate Pinecone index
+
+>[!WARNING]
+> **Model Compatibility**: The dimension of your Pinecone index must match the output dimension of your embedding model
+>**Ollama Requirements**: Ensure Ollama is running whenever you use the assistant
+>**Personal Knowledge Bases**: If you want to create your own knowledge base, create a separate Pinecone index rather than modifying a shared one
 
 ---
