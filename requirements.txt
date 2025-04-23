@@ -22,3 +22,9 @@ playwright
 
 # Typing extensions
 typing-extensions
+
+# File handling
+python-docx
+
+# PDF handling
+PyPDF2
