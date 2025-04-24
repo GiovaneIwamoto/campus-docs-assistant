@@ -40,7 +40,7 @@ def configure_sidebar() -> dict:
         web_indexing_enabled = index_expander.button("Activate Web Indexing", icon=":material/database_upload:")
 
         # File indexing section
-        uploaded_file = index_expander.file_uploader("File Upload", type=["pdf", "txt", "docx"])
+        uploaded_files = index_expander.file_uploader("File Upload", type=["pdf", "txt", "docx", "zip"], accept_multiple_files=True)
         file_indexing_enabled = index_expander.button("Activate File Indexing", icon=":material/database_upload:")
 
     # Validate required fields for web indexing
@@ -56,7 +56,7 @@ def configure_sidebar() -> dict:
 
     # Validate required fields for file indexing
     if file_indexing_enabled:
-        if not uploaded_file or not pinecone_api_key or not pinecone_index_name or not embedding_model:
+        if not uploaded_files or not pinecone_api_key or not pinecone_index_name or not embedding_model:
             st.toast(
                 "File indexing failed — please upload a file and fill in all the required fields.",
                 icon=":material/assignment_late:"
@@ -69,7 +69,7 @@ def configure_sidebar() -> dict:
         "web_indexing_enabled": web_indexing_enabled,
         "web_url": web_url,
         "file_indexing_enabled": file_indexing_enabled,   
-        "uploaded_file": uploaded_file,                   
+        "uploaded_files": uploaded_files,                   
         "pinecone_api_key": pinecone_api_key,
         "pinecone_index_name": pinecone_index_name,
         "embedding_model": embedding_model,

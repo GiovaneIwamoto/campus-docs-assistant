@@ -31,7 +31,7 @@ def main():
 
     # Handle file upload indexing mode
     if indexing_mode_config["file_indexing_enabled"]:
-        uploaded_file = indexing_mode_config["uploaded_file"]
+        uploaded_file = indexing_mode_config["uploaded_files"]
         run_file_indexing_mode(indexing_mode_config, uploaded_file)
 
     # Handle user input
