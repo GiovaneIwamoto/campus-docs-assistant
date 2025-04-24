@@ -23,7 +23,7 @@ By leveraging state-of-the-art AI technologies, the assistant understands comple
 | ![cognition](/assets/cognition.svg)           | Indexing Operations                  | Indicates that the assistant is processing documents      |
 | ![psychology_alt](/assets/psychology_alt.svg) | Error or Reset Messages              | System-level feedback such as error messages or resets    |
 
-*This legend provides a clear understanding of the avatars used in the application and their significance in different contexts*
+*This legend provides a clear understanding of the avatars used in the application and their significance*
 
 ---
 
@@ -53,7 +53,7 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ![contextual](/assets/contextual.svg) **Context-Aware Responses**
 
-- Implements a retrieve and generate mechanism that blends user queries with retrieved content to produce accurate, relevant answers. Leveraging LangChain's Retrieval-Augmented Generation logic under the hood.
+- Implements a retrieve and generate mechanism that blends user queries with retrieved content to produce accurate, relevant answers. Leveraging LangChain's retrieval augmented generation logic under the hood.
 
 - Maintains dynamic context management, keeping the conversation history clean and focused to ensure that responses remain concise and contextually accurate.
 
@@ -65,11 +65,11 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ![forum](/assets/forum.svg) **Interactive User Interface**
 
-- Built with Streamlit, the assistant features a responsive and interactive UI where users can submit queries, view answers, and configure behavior—all within an accessible web interface.
+- Built with Streamlit the assistant features a responsive and interactive UI where users can submit queries, view answers, and configure behavior—all within an accessible web interface.
 
 ![graph](/assets/graph.svg) **Modular and Scalable Architecture**
 
-- Employs a LangGraph-based state machine, where conversational logic is handled through dynamic workflows—ensuring flexibility in managing tool calls, memory, and state transitions.
+- Employs a LangGraph based state machine, where conversational logic is handled through dynamic workflows—ensuring flexibility in managing tool calls, memory, and state transitions.
 
 - Designed with robust error handling to gracefully manage runtime issues, API failures, and unexpected user input across various system components.
 
