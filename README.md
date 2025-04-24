@@ -6,9 +6,9 @@
 
 ## **INTRODUCTION**
 
-The Campus Docs Assistant is an AI-powered platform designed to streamline access to academic and administrative information within universities. Through a user-friendly chatbot interface, students, faculty, and staff can interact naturally with an intelligent assistant capable of answering questions, retrieving official documents, and offering support grounded in institutional data. This natural language interaction simplifies complex information retrieval tasks, eliminating the need to manually navigate dense and often confusing documentation.
+The *Campus Docs Assistant* is an AI-powered platform designed to streamline access to academic and administrative information within universities. Through a user-friendly chatbot interface, students, faculty, and staff can interact naturally with an intelligent assistant capable of answering questions, retrieving official documents, and offering support grounded in institutional data. This natural language interaction simplifies complex information retrieval tasks, eliminating the need to manually navigate dense and often confusing documentation.
 
-By leveraging state-of-the-art AI technologies, the assistant understands complex queries, performs context-aware document retrieval, and generates accurate and concise responses in real time. Its web-based interface ensures accessibility while promoting autonomy in accessing institutional knowledge. This makes the Campus Docs Assistant a valuable tool for educational institutions aiming to enhance user experience, reduce repetitive inquiries, and improve the overall efficiency of information management.
+By leveraging state-of-the-art AI technologies, the assistant understands complex queries, performs context-aware document retrieval, and generates accurate and concise responses in real time. Its web-based interface ensures accessibility while promoting autonomy in accessing institutional knowledge. This makes the *Campus Docs Assistant* a valuable tool for educational institutions aiming to enhance user experience, reduce repetitive inquiries, and improve the overall efficiency of information management.
 
 ---
 
@@ -33,7 +33,7 @@ This project was initially inspired by the specific challenges observed at the F
 
 In practice, students seeking a single answer — such as internship requirements, enrollment rules, or calendar dates — frequently end up reading through dozens of pages of official publications. Frustrated by this experience, many resort to contacting academic coordinators directly. However, from the administration's perspective, this creates a high volume of repetitive inquiries that could have been answered if students had easier access to the right part of the documentation.
 
-This cycle results in inefficiency and dissatisfaction on both sides: students receive vague or delayed responses, and coordinators are overwhelmed by simple questions that require them to redirect students to existing official documents. The Campus Docs Assistant was developed to break this cycle, acting as a bridge between formal documentation and practical student needs. By enabling natural language interaction and intelligent information retrieval, it aims to reduce friction, save time, and promote autonomous access to institutional knowledge.
+This cycle results in inefficiency and dissatisfaction on both sides: students receive vague or delayed responses, and coordinators are overwhelmed by simple questions that require them to redirect students to existing official documents. The *Campus Docs Assistant* was developed to break this cycle, acting as a bridge between formal documentation and practical student needs. By enabling natural language interaction and intelligent information retrieval, it aims to reduce friction, save time, and promote autonomous access to institutional knowledge.
 
 ---
 
@@ -69,15 +69,21 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ![graph](/assets/graph.svg) **Modular and Scalable Architecture**
 
-- Employs a LangGraph based state machine, where conversational logic is handled through dynamic workflows—ensuring flexibility in managing tool calls, memory, and state transitions.
+- Employs a LangGraph based state machine, where conversational logic is handled through dynamic workflows ensuring flexibility in managing tool calls, memory and state transitions.
 
-- Designed with robust error handling to gracefully manage runtime issues, API failures, and unexpected user input across various system components.
+- Designed with robust error handling to gracefully manage runtime issues, API failures and unexpected user input across various system components.
 
 ---
 
-## **USAGE**
+## **GETTING STARTED**
 
-This guide outlines how to use the Campus Docs Assistant in two distinct scenarios: creating and managing a new knowledge base for `coordinators/institutions` or accessing and querying an existing knowledge base for `students/users`. All users regardless of role need the following:
+This guide outlines how to use the *Campus Docs Assistant* in two distinct scenarios: 
+
+- Creating and managing a new knowledge base for `Coordinators & Institutions`
+
+- Accessing and querying an existing knowledge base for `Students & Users`
+
+All users regardless of role need the following:
 
 - [x] Ollama installed and running locally
 - [x] Access to a MaritTalk API key
@@ -87,16 +93,16 @@ This guide outlines how to use the Campus Docs Assistant in two distinct scenari
 
 As a coordinator or institution representative you are responsible for:
 
-**Creating and configuring the Pinecone vector database**:
+**Creating and configuring the Pinecone vector database**
    - Create a Pinecone index with the appropriate dimension size
    - Ensure the index dimension matches your chosen embedding model dimension
 
-**Indexing content into the knowledge base**:
+**Indexing content into the knowledge base**
    - Upload PDFs containing institutional content
    - Add URLs for web-based institutional resources
    - Maintain and update the knowledge base as needed
 
-**Providing access credentials to students**:
+**Providing access credentials to students**
    - Share the Pinecone API key and index name
    - Provide MaritTalk API access information
    - Communicate which embedding model students should use
@@ -106,12 +112,12 @@ As a coordinator or institution representative you are responsible for:
 
 As a student or end-user you will focus on using the assistant not configuring indexing:
 
-**Use existing knowledge base credentials**:
+**Use existing knowledge base credentials**
    - Obtain necessary credentials from your institution
    - Configure the assistant with these credentials
    - Query the knowledge base using natural language
 
-**Avoid modifying the shared knowledge base**:
+**Avoid modifying the shared knowledge base**
    - While technically possible to index content to a shared knowledge base this is not recommended
    - If you need your own knowledge base, create a separate Pinecone index
 
@@ -119,17 +125,17 @@ As a student or end-user you will focus on using the assistant not configuring i
 
 ## **SETUP GUIDELINES**
 
-- **Recommended Embedding Model**:  
-   Use `nomic-embed-text` with an output dimension of $768$.
+**Recommended Embedding Model**
+   - Use `nomic-embed-text` with an output dimension of $768$.
 
-- **Embedding & Index Compatibility**:  
-   Your Pinecone index dimension must match the embedding model's output.
+**Embedding & Index Compatibility**
+   - Your Pinecone index dimension must match the embedding model's output.
 
-- **Ollama Runtime**:  
-   Ollama must be running locally to use the assistant.
+**Ollama Runtime**
+   - Ollama must be running locally to use the assistant.
 
-- **Personal Knowledge Bases**:  
-   Avoid modifying the shared index. Create a separate Pinecone index if needed.
+**Personal Knowledge Bases**
+   - Avoid modifying the shared index. Create a separate Pinecone index if needed.
 
 ---
 
@@ -142,20 +148,17 @@ $ cd campus-docs-assistant
 ```
 
 Install Dependencies
-
 ```
 $ pip install -r requirements.txt
 ```
 
 Install Playwright
-
 ```
 $ pip install playwright
 $ playwright install
 ```
 
 Run the Application
-
 ```
 $ cd app
 $ streamlit run app.py
@@ -165,7 +168,7 @@ $ streamlit run app.py
 
 ## **CONTACT & SUPPORT**
 
-Whether you're a developer, university representative, coordinator, or student exploring or deploying the Campus Docs Assistant, I'm here to help and collaborate! Feel free to reach out for:
+Whether you're a developer, university representative, coordinator, or student exploring or deploying the *Campus Docs Assistant*, I'm here to help and collaborate! Feel free to reach out for:
 
 - General inquiries about the project
 - Feature requests or suggestions
