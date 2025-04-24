@@ -77,81 +77,103 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ## **USAGE**
 
-#### Knowledge Base Assistant Setup & Usage Guide
+This guide outlines how to use the Campus Docs Assistant in two distinct scenarios: creating and managing a new knowledge base for `coordinators/institutions` or accessing and querying an existing knowledge base for `students/users`. All users regardless of role need the following:
 
-This guide outlines how to use the Campus Docs Assistant in two distinct scenarios: creating and managing a new knowledge base (for coordinators/institutions) or accessing and querying an existing knowledge base (for students/users).
+- [ ] Ollama installed and running locally
+- [ ] Access to a MaritTalk API key
+- [ ] Access to Pinecone credentials
 
-All users, regardless of role, need the following:
-   - Ollama installed and running locally
-   - Access to a MaritTalk API key
-   - Access to Pinecone credentials
+## **Role-Based Configuration [Coordinators / Institutions]**
 
-### ![admin_panel](/assets/admin_panel.svg) Role-Based Configuration: Coordinators / Institutions
-
-As a coordinator or institution representative, you are responsible for:
+As a coordinator or institution representative you are responsible for:
 
 **Creating and configuring the Pinecone vector database**:
-- Create a Pinecone index with the appropriate dimension size
-- Current recommendation: Use `nomic-embed-text` embedding model with dimension $768$
-- Ensure the index dimension matches your chosen embedding model dimension
+   - Create a Pinecone index with the appropriate dimension size
+   - Current recommendation: Use `nomic-embed-text` embedding model with dimension $768$
+   - Ensure the index dimension matches your chosen embedding model dimension
 
 **Indexing content into the knowledge base**:
-- Upload PDFs containing institutional content
-- Add URLs for web-based institutional resources
-- Maintain and update the knowledge base as needed
+   - Upload PDFs containing institutional content
+   - Add URLs for web-based institutional resources
+   - Maintain and update the knowledge base as needed
 
 **Providing access credentials to students**:
-- Share the Pinecone API key and index name
-- Provide MaritTalk API access information
-- Communicate which embedding model students should use
+   - Share the Pinecone API key and index name
+   - Provide MaritTalk API access information
+   - Communicate which embedding model students should use
 
-### ![group](/assets/group.svg) Role-Based Configuration: Students / Users
 
-As a student or end-user, you will:
+## **Role-Based Configuration [Students / Users]**
+
+As a student or end-user you will:
 
 **Use existing knowledge base credentials**:
-- Obtain necessary credentials from your coordinator/institution
-- Configure the assistant with these credentials
-- Query the knowledge base using natural language
+   - Obtain necessary credentials from your coordinator/institution
+   - Configure the assistant with these credentials
+   - Query the knowledge base using natural language
 
->[!IMPORTANT]
->**Avoid modifying the shared knowledge base**:
->
->While technically possible to index content to a shared knowledge base, this is not recommended
->If you need your own knowledge base, create a separate Pinecone index
+**Avoid modifying the shared knowledge base**:
+   - While technically possible to index content to a shared knowledge base, this is not recommended
+   - If you need your own knowledge base, create a separate Pinecone index
 
->[!WARNING]
-> **Model Compatibility**: The dimension of your Pinecone index must match the output dimension of your embedding model
->
->**Ollama Requirements**: Ensure Ollama is running whenever you use the assistant
->
->**Personal Knowledge Bases**: If you want to create your own knowledge base, create a separate Pinecone index rather than modifying a shared one
+---
+
+## **ATTENTION**
+
+**Model Compatibility**: The dimension of your Pinecone index must match the output dimension of your embedding model
+
+**Ollama Requirements**: Ensure Ollama is running whenever you use the assistant
+
+**Personal Knowledge Bases**: If you want to create your own knowledge base, create a separate Pinecone index rather than modifying a shared one
 
 ---
 
 ## **INSTALLATION GUIDE**
 
-**Clone the Repository**
-```ruby
+Clone the Repository
+```
 $ git clone https://github.com/GiovaneIwamoto/campus-docs-assistant.git
 $ cd campus-docs-assistant
 ```
 
-**Install Dependencies**
-```ruby
+Install Dependencies
+
+```
 $ pip install -r requirements.txt
 ```
 
-**Install Playwright**
-```ruby
+Install Playwright
+
+```
 $ pip install playwright
 $ playwright install
 ```
 
-**Run the Application**
-```ruby
+Run the Application
+
+```
 $ cd app
 $ streamlit run app.py
 ```
 
 ---
+
+## **CONTACT & SUPPORT**
+
+Whether you're a developer, university representative, coordinator, or student exploring or deploying the Campus Docs Assistant, I’m here to help and collaborate! Feel free to reach out for:
+
+- General inquiries about the project
+- Feature requests or suggestions
+- Help provisioning resources
+- Troubleshooting installation or usage issues
+- Collaboration opportunities or academic use cases
+
+Email: [giovaneiwamoto@gmail.com](mailto:giovaneiwamoto@gmail.com)
+
+You can also open an issue on GitHub for bug reports or enhancements.
+
+---
+
+## **LIKE THE PROJECT**
+
+If you find this project useful or believe in its potential to enhance academic processes, consider giving it a ★ **star** on GitHub — it really helps with visibility and community support!
