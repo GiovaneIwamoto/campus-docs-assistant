@@ -83,13 +83,12 @@ This guide outlines how to use the Campus Docs Assistant in two distinct scenari
 - [ ] Access to a MaritTalk API key
 - [ ] Access to Pinecone credentials
 
-## **Role-Based Configuration [Coordinators / Institutions]**
+## ![person_shield](/assets/person_shield.svg) **Role-Based Configuration [Coordinators / Institutions]**
 
 As a coordinator or institution representative you are responsible for:
 
 **Creating and configuring the Pinecone vector database**:
    - Create a Pinecone index with the appropriate dimension size
-   - Current recommendation: Use `nomic-embed-text` embedding model with dimension $768$
    - Ensure the index dimension matches your chosen embedding model dimension
 
 **Indexing content into the knowledge base**:
@@ -103,9 +102,9 @@ As a coordinator or institution representative you are responsible for:
    - Communicate which embedding model students should use
 
 
-## **Role-Based Configuration [Students / Users]**
+## ![person_search](/assets/person_search.svg) **Role-Based Configuration [Students / Users]**
 
-As a student or end-user you will:
+As a student or end-user you will focus on using the assistant not configuring indexing:
 
 **Use existing knowledge base credentials**:
    - Obtain necessary credentials from your coordinator/institution
@@ -118,13 +117,19 @@ As a student or end-user you will:
 
 ---
 
-## **ATTENTION**
+## **SETUP GUIDELINES**
 
-**Model Compatibility**: The dimension of your Pinecone index must match the output dimension of your embedding model
+- **Recommended Embedding Model**:  
+   Use `nomic-embed-text` with an output dimension of $768$.
 
-**Ollama Requirements**: Ensure Ollama is running whenever you use the assistant
+- **Embedding & Index Compatibility**:  
+   Your Pinecone index dimension must match the embedding model's output.
 
-**Personal Knowledge Bases**: If you want to create your own knowledge base, create a separate Pinecone index rather than modifying a shared one
+- **Ollama Runtime**:  
+   Ollama must be running locally to use the assistant.
+
+- **Personal Knowledge Bases**:  
+   Avoid modifying the shared index. Create a separate Pinecone index if needed.
 
 ---
 
