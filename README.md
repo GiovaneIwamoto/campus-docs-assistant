@@ -35,6 +35,10 @@ In practice, students seeking a single answer — such as internship requirement
 
 This cycle results in inefficiency and dissatisfaction on both sides: students receive vague or delayed responses, and coordinators are overwhelmed by simple questions that require them to redirect students to existing official documents. The *Campus Docs Assistant* was developed to break this cycle, acting as a bridge between formal documentation and practical student needs. By enabling natural language interaction and intelligent information retrieval, it aims to reduce friction, save time, and promote autonomous access to institutional knowledge.
 
+https://github.com/user-attachments/assets/333a08da-3874-4c18-933b-595f5d254604
+
+https://github.com/user-attachments/assets/ca62d9eb-43b1-4de5-8770-cef66fb440ef
+
 ---
 
 ## **FEATURES**
