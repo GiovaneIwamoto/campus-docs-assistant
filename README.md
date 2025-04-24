@@ -125,17 +125,7 @@ As a student or end-user you will focus on using the assistant not configuring i
 
 ## **SETUP GUIDELINES**
 
-**Recommended Embedding Model**
-   - Use `nomic-embed-text` with an output dimension of $768$.
-
-**Embedding & Index Compatibility**
-   - Your Pinecone index dimension must match the embedding model's output.
-
-**Ollama Runtime**
-   - Ollama must be running locally to use the assistant.
-
-**Personal Knowledge Bases**
-   - Avoid modifying the shared index. Create a separate Pinecone index if needed.
+To begin, it's recommended to use the *nomic-embed-text* model for generating embeddings, as it provides an output dimension of $768$. When setting up your Pinecone index, ensure that its dimensionality matches the output of the embedding model — this compatibility is crucial for proper functioning. Additionally, make sure that the Ollama runtime is running locally, as the assistant depends on it to operate. Lastly, if you intend to incorporate personal knowledge bases, avoid making changes to the shared Pinecone index. Instead, create a separate index to keep your data isolated and organized.
 
 ---
 
