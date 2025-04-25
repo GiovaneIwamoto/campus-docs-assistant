@@ -37,9 +37,9 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ---
 
-https://github.com/user-attachments/assets/a0b2873b-9ac4-4a90-82cb-b276299393fb
+https://github.com/user-attachments/assets/2813fe71-c0cc-48d9-a509-8cc8303daaa3
 
-https://github.com/user-attachments/assets/f9c4d1b7-b84b-4951-8343-9ef7cdc54c36
+https://github.com/user-attachments/assets/96dd06a0-cb46-41cb-b2eb-0c8b4fbd6412
 
 ---
 
@@ -78,6 +78,8 @@ https://github.com/user-attachments/assets/f9c4d1b7-b84b-4951-8343-9ef7cdc54c36
 - Employs a LangGraph based state machine, where conversational logic is handled through dynamic workflows ensuring flexibility in managing tool calls, memory and state transitions.
 
 - Designed with robust error handling to gracefully manage runtime issues, API failures and unexpected user input across various system components.
+
+https://github.com/user-attachments/assets/6b6466ce-7e58-4a7b-b8f7-ae91824a8a4d
 
 ---
 
