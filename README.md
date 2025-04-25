@@ -37,9 +37,9 @@ This cycle results in inefficiency and dissatisfaction on both sides: students r
 
 ---
 
-https://github.com/user-attachments/assets/333a08da-3874-4c18-933b-595f5d254604
+https://github.com/user-attachments/assets/a0b2873b-9ac4-4a90-82cb-b276299393fb
 
-https://github.com/user-attachments/assets/ca62d9eb-43b1-4de5-8770-cef66fb440ef
+https://github.com/user-attachments/assets/f9c4d1b7-b84b-4951-8343-9ef7cdc54c36
 
 ---
 

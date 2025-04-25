@@ -3,7 +3,7 @@ import streamlit as st
 from langchain_core.documents import Document
 from services.vectorstore_service import initialize_vectorstore
 from utils.text_extractor import extract_text_from_file
-from utils.file_extractor import extract_files_from_zip
+from utils.file_extractor import extract_files_from_zip, FileExtractorError
 from utils.web_scraper import get_rendered_webpage
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -78,29 +78,48 @@ def run_file_indexing_mode(config: dict, uploaded_files: list):
             
             # If the uploaded file is a ZIP archive, extract its contents
             if file_extension == ".zip":
-                with st.spinner(f"Extracting files from ZIP: {file.name}"):
-                    extracted_items = extract_files_from_zip(file)
+                try:
+                    with st.spinner(f"Extracting files from ZIP: {file.name}"):
+                        extracted_items = extract_files_from_zip(file)
                     
-                # Warn the user if no supported files were found in the ZIP    
-                if not extracted_items:
-                    st.warning(f"No supported files found in {file.name}")
-                    continue
+                    # Warn the user if no supported files were found in the ZIP    
+                    if not extracted_items:
+                        st.toast(f"No supported files found in {file.name}", icon=":material/folder_zip:")
+                        continue
+                    
+                    # Process each extracted file individually                                
+                    for inner_filename, inner_file in extracted_items:
+                        inner_ext = os.path.splitext(inner_filename)[-1].lower()
+                        try:
+                            process_file_for_indexing(inner_file, inner_filename, inner_ext, pinecone_api_key, pinecone_index_name, embedding_model)
+                        except Exception as e:
+                            st.toast(f"Error processing file '{inner_filename}': {e}", icon=":material/folder_zip:")
                 
-                # Process each extracted file individually                                
-                for inner_filename, inner_file in extracted_items:
-                    inner_ext = os.path.splitext(inner_filename)[-1].lower()
-                    process_file_for_indexing(inner_file, inner_filename, inner_ext, pinecone_api_key, pinecone_index_name, embedding_model)
-                
-            # If it's a regular file (not a ZIP), process it directly    
+                except FileExtractorError as e:
+                    st.toast(f"Error extracting ZIP file '{file.name}': {e}, icon=':material/folder_zip:")
+                    continue  # Skip to the next file
+            
+            # If it's a regular simple file, process it directly    
             else:
-                process_file_for_indexing(
-                    file, file.name, file_extension,
-                    pinecone_api_key, pinecone_index_name, embedding_model
-                )
-                    
+                try:
+                    process_file_for_indexing(
+                        file, file.name, file_extension,
+                        pinecone_api_key, pinecone_index_name, embedding_model
+                    )
+                except Exception as e:
+                    st.toast(f"Error processing file '{file.name}': {e}", icon=":material/upload_file:")
+                            
 def process_file_for_indexing(file_obj, filename, file_ext, pinecone_api_key, pinecone_index_name, embedding_model):
     """
-    Helper function to extract, chunk and index a single file.
+    Process a single file for indexing into Pinecone.
+
+    Args:
+        file_obj: The uploaded file object.
+        filename (str): The name of the file.
+        file_ext (str): The file extension.
+        pinecone_api_key (str): Pinecone API key.
+        pinecone_index_name (str): Pinecone index name.
+        embedding_model (str): Embedding model to use.
     """
     try:
         with st.spinner(f"Processing file {filename}..."):

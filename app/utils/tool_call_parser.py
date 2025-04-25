@@ -40,6 +40,7 @@ def parse_tool_call(response):
     except json.JSONDecodeError as e:
         logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] JSON decode error: {str(e)}\n")
         return None
+    
     except Exception as e:
         logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] Error parsing tool call: {str(e)}\n")
         return None
