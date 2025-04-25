@@ -2,7 +2,8 @@ import os
 import streamlit as st
 from langchain_core.documents import Document
 from services.vectorstore_service import initialize_vectorstore
-from utils.text_extractor import extract_text_from_file, extract_files_from_zip
+from utils.text_extractor import extract_text_from_file
+from utils.file_extractor import extract_files_from_zip
 from utils.web_scraper import get_rendered_webpage
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
