@@ -76,7 +76,7 @@ def run_file_indexing_mode(config: dict, uploaded_files: list):
         for file in uploaded_files:
             file_extension = os.path.splitext(file.name)[-1].lower()
             
-            # If the uploaded file is a ZIP archive, extract its contents
+            # If the uploaded file is a ZIP archive extract its contents
             if file_extension == ".zip":
                 try:
                     with st.spinner(f"Extracting files from ZIP: {file.name}"):
@@ -85,6 +85,8 @@ def run_file_indexing_mode(config: dict, uploaded_files: list):
                     # Warn the user if no supported files were found in the ZIP    
                     if not extracted_items:
                         st.toast(f"No supported files found in {file.name}", icon=":material/folder_zip:")
+                        with st.expander("Error details"):
+                            st.write(f"An error occurred: {e}")
                         continue
                     
                     # Process each extracted file individually                                
@@ -94,12 +96,16 @@ def run_file_indexing_mode(config: dict, uploaded_files: list):
                             process_file_for_indexing(inner_file, inner_filename, inner_ext, pinecone_api_key, pinecone_index_name, embedding_model)
                         except Exception as e:
                             st.toast(f"Error processing file '{inner_filename}': {e}", icon=":material/folder_zip:")
-                
+                            with st.expander("Error details"):
+                                st.write(f"An error occurred: {e}")
+
                 except FileExtractorError as e:
-                    st.toast(f"Error extracting ZIP file '{file.name}': {e}, icon=':material/folder_zip:")
-                    continue  # Skip to the next file
+                    st.toast(f"Error extracting ZIP file '{file.name}': {e}", icon=":material/folder_zip:")
+                    with st.expander("Error details"):
+                        st.write(f"An error occurred: {e}")
+                    continue
             
-            # If it's a regular simple file, process it directly    
+            # Regular simple file process it directly    
             else:
                 try:
                     process_file_for_indexing(
@@ -107,8 +113,10 @@ def run_file_indexing_mode(config: dict, uploaded_files: list):
                         pinecone_api_key, pinecone_index_name, embedding_model
                     )
                 except Exception as e:
-                    st.toast(f"Error processing file '{file.name}': {e}", icon=":material/upload_file:")
-                            
+                    st.toast(f"Error processing file '{file.name}': {e}", icon=":material/feedback:")
+                    with st.expander("Error details"):
+                        st.write(f"An error occurred: {e}")
+
 def process_file_for_indexing(file_obj, filename, file_ext, pinecone_api_key, pinecone_index_name, embedding_model):
     """
     Process a single file for indexing into Pinecone.
