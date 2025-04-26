@@ -1,8 +1,8 @@
-![image_banner](image/banner.png)
+![image_banner](images/banner.png)
 
-![image_rag_flow](image/rag_flow.png)
+![image_rag_flow](images/rag_flow.png)
 
-![image_install_guide](image/install_guide.png)
+![image_install_guide](images/install_guide.png)
 
 ## **INTRODUCTION**
 
