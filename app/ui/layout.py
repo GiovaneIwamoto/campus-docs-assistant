@@ -1,5 +1,6 @@
 import streamlit as st
 from langchain_core.messages import HumanMessage
+from langchain.schema import ChatMessage
 
 def set_page_config():
     # Set the page configuration for the Streamlit app
@@ -20,6 +21,13 @@ def set_page_config():
 
 def display_banner():
     st.image("assets/banner.png")
+
+def initialize_chat_history():
+    """Initialize chat history in session state."""
+    if "messages" not in st.session_state:
+        st.session_state["messages"] = [
+            ChatMessage(role="assistant", content="How can I assist you with campus resources today?")
+        ]
 
 def display_chat_history():
     for msg in st.session_state["messages"]:

@@ -1,7 +1,6 @@
 import streamlit as st
-from ui.layout import set_page_config, display_banner, display_chat_history
+from ui.layout import set_page_config, display_banner, initialize_chat_history, display_chat_history
 from ui.sidebar import configure_sidebar
-from core.state_manager import initialize_chat_history
 from services.chat_service import handle_user_input
 from services.indexing_service import run_web_indexing_mode, run_file_indexing_mode
 from config.logging_config import setup_logging
