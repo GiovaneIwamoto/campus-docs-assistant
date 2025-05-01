@@ -3,14 +3,8 @@ from ui.layout import set_page_config, display_banner, initialize_chat_history, 
 from ui.sidebar import configure_sidebar
 from services.chat_service import handle_user_input
 from services.indexing_service import run_web_indexing_mode, run_file_indexing_mode
-from config.logging_config import setup_logging
-
-logger = setup_logging()
 
 def main():
-    # Configure logging
-    setup_logging()
-
     # Set up the Streamlit page configuration
     set_page_config()
     
