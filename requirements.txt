@@ -3,10 +3,15 @@ streamlit
 
 # LangChain libraries
 langchain
-langchain-community
 langchain-core
-langchain-ollama
 langchain-text-splitters
+langchain-community
+
+# LangChain model integrations
+langchain-openai
+langchain-ollama
+
+# LangChain extensions
 langgraph
 
 # Console formatting
@@ -26,6 +31,4 @@ typing-extensions
 
 # File handling
 python-docx
-
-# PDF handling
 PyPDF2
