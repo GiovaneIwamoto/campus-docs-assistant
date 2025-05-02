@@ -1,8 +1,8 @@
 from playwright.sync_api import sync_playwright
 from langchain.schema import Document
-import logging
+from config.logging_config import setup_logging, EnhancedLogger
 
-logger = logging.getLogger(__name__)
+logger = EnhancedLogger(setup_logging())
 
 def get_rendered_webpage(url: str) -> Document:
     """
@@ -24,5 +24,5 @@ def get_rendered_webpage(url: str) -> Document:
             browser.close()
             return Document(page_content=html, metadata={"source": url})
     except Exception as e:
-        logger.error(f"Error during web scraping: {e}\n")
+        logger.error("A problem occurred while scraping the webpage", e)
         raise
