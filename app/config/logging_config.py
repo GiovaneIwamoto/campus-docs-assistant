@@ -46,6 +46,12 @@ class EnhancedLogger:
     def llm_tool_last_message(self, llm_role_info, message):
         self.logger.info(f"[#6819B3][LLM TOOL][/#6819B3] [#4169E1][{llm_role_info}][/#4169E1] '{message}'\n")
 
+    def parser_error(self, parser_status):
+        self.logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] {parser_status}\n")
+
+    def parser_warning(self, parser_status):
+        self.logger.warning(f"[#FF4F4F][PARSER][/#FF4F4F] {parser_status}\n")
+
     def error(self, error_type, exception):
         self.logger.error(f"{error_type} Error: {exception}\n")
 

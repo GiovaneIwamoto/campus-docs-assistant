@@ -1,8 +1,8 @@
 import json
 import uuid
-import logging
+from config.logging_config import setup_logging, EnhancedLogger
 
-logger = logging.getLogger(__name__)
+logger = EnhancedLogger(setup_logging())
 
 def parse_tool_call(response):
     """
@@ -25,7 +25,7 @@ def parse_tool_call(response):
             
             # Ensure required fields are present
             if "function" not in call or "arguments" not in call:
-                logger.error("[#FF4F4F][PARSER][/#FF4F4F] Invalid tool call format - missing required fields\n")
+                logger.parser_error("Invalid tool call format: Missing required fields")
                 return None
                 
             # Map the tool call to the expected format
@@ -34,13 +34,13 @@ def parse_tool_call(response):
             call["id"] = call.get("id", str(uuid.uuid4()))
             return call
         else:
-            logger.warning("[#FF4F4F][PARSER][/#FF4F4F] No 'tool_call' field found in the parsed JSON\n")
+            logger.parser_warning("No tool call field found in the parsed JSON")
             return None
             
     except json.JSONDecodeError as e:
-        logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] JSON decode error: {str(e)}\n")
+        logger.parser_error(f"JSON decode error: {str(e)}")
         return None
     
     except Exception as e:
-        logger.error(f"[#FF4F4F][PARSER][/#FF4F4F] Error parsing tool call: {str(e)}\n")
+        logger.parser_error(f"Error parsing tool call: {str(e)}")
         return None
