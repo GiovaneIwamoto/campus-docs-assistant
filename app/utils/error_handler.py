@@ -1,8 +1,5 @@
 import time
 import streamlit as st
-from config.logging_config import setup_logging
-
-logger = setup_logging()
 
 def handle_maritalk_error(error: Exception):
     """
