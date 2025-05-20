@@ -183,3 +183,5 @@ You can also open an issue on GitHub for bug reports or enhancements.
 ## **LIKE THE PROJECT**
 
 If you find this project useful or believe in its potential to enhance academic processes, consider giving it a ★ **star** on GitHub — it really helps with visibility and community support!
+
+![journal](images/journal.jpg)
