@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 from langchain_core.messages import HumanMessage
 from langchain.schema import ChatMessage
@@ -20,7 +21,9 @@ def set_page_config():
     )
 
 def display_banner():
-    st.image("assets/banner.png")
+    current_dir = os.path.dirname(__file__)
+    image_path = os.path.join(current_dir, "../assets/banner.png")
+    st.image(image_path)
 
 def initialize_chat_history():
     """Initialize chat history in session state."""
