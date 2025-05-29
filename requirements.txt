@@ -10,6 +10,7 @@ langchain-community
 # LangChain model integrations
 langchain-openai
 langchain-ollama
+langchain-pinecone
 
 # LangChain extensions
 langgraph
@@ -32,3 +33,6 @@ typing-extensions
 # File handling
 python-docx
 PyPDF2
+
+# Natural Language Processing
+transformers
