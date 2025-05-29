@@ -11,7 +11,7 @@ def configure_sidebar() -> dict:
         llm_api_key = keys_expander.text_input("Maritalk API Key", type="password")
         pinecone_api_key = keys_expander.text_input("Pinecone API Key", type="password")
         pinecone_index_name = keys_expander.text_input("Pinecone Index Name")
-        embedding_model = keys_expander.text_input("Ollama Embedding Model", value="nomic-embed-text")
+        embedding_model = keys_expander.text_input("Ollama Embedding Model", placeholder="nomic-embed-text")
 
         # Initialization of session state variables
         if 'llm_api_key' not in st.session_state:
