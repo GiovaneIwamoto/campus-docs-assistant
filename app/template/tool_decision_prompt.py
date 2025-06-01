@@ -2,7 +2,7 @@ from langchain.prompts import PromptTemplate
 
 # Define the tool decision prompt template
 TOOL_DECISION_SYSTEM_PROMPT = PromptTemplate(
-    input_variables=["pinecone_api_key", "pinecone_index_name", "embedding_model"],
+    input_variables=["pinecone_api_key", "pinecone_index_name", "embedding_model_provider", "embedding_model", "openai_api_key"],
     template="""
     You are a helpful assistant with access to a specialized document database containing information related to university files and educational resources.
     
@@ -33,7 +33,9 @@ TOOL_DECISION_SYSTEM_PROMPT = PromptTemplate(
                 "query": "<your query>",
                 "pinecone_api_key": "{pinecone_api_key}",
                 "pinecone_index_name": "{pinecone_index_name}",
-                "embedding_model": "{embedding_model}"
+                "embedding_model_provider": "{embedding_model_provider}",
+                "embedding_model": "{embedding_model}",
+                "openai_api_key": "{openai_api_key}"
             }}
         }}
     }}
