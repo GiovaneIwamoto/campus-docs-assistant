@@ -37,6 +37,14 @@ def handle_user_input(prompt: str):
         logger.warning("Pinecone index name is missing. User cannot proceed without it.")
         return
 
+    # Check for OpenAI API key if using OpenAI as embedding model provider
+    openai_api_key = st.session_state.get("openai_api_key")
+    embedding_model_provider = st.session_state.get("embedding_model_provider")
+    if not openai_api_key and embedding_model_provider == "OpenAI":
+        st.toast("Please add your OpenAI API key.", icon=":material/passkey:")
+        logger.warning("OpenAI API Key is missing. User cannot proceed without it.")
+        return
+
     # Loggers for auditing authentication
     logger.auth(llm_api_key, pinecone_api_key, pinecone_index_name)
 
