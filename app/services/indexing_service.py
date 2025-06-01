@@ -19,14 +19,16 @@ def run_web_indexing_mode(config: dict):
     web_url = config.get("web_url")
     pinecone_api_key = config.get("pinecone_api_key")
     pinecone_index_name = config.get("pinecone_index_name")
+    embedding_model_provider = config.get("embedding_model_provider")
     embedding_model = config.get("embedding_model")
+    openai_api_key = config.get("openai_api_key")
 
     with st.chat_message("assistant", avatar=":material/cognition_2:"):
         try:
             with st.spinner("Processing web page and indexing...", show_time=True):
 
                 # Initialize Pinecone
-                vector_store = initialize_vectorstore(pinecone_api_key, pinecone_index_name, embedding_model)
+                vector_store = initialize_vectorstore(pinecone_api_key, pinecone_index_name, embedding_model_provider, embedding_model, openai_api_key)
                 st.toast('Pinecone initialized successfully!', icon=":material/table_eye:")
 
                 # Load and chunk the web page content
@@ -70,7 +72,9 @@ def run_file_indexing_mode(config: dict, uploaded_files: list):
     # Set configuration parameters
     pinecone_api_key = config.get("pinecone_api_key")
     pinecone_index_name = config.get("pinecone_index_name")
+    embedding_model_provider = config.get("embedding_model_provider")
     embedding_model = config.get("embedding_model")
+    openai_api_key = config.get("openai_api_key")
     
     with st.chat_message("assistant", avatar=":material/cognition_2:"):
         for file in uploaded_files:
@@ -93,7 +97,7 @@ def run_file_indexing_mode(config: dict, uploaded_files: list):
                     for inner_filename, inner_file in extracted_items:
                         inner_ext = os.path.splitext(inner_filename)[-1].lower()
                         try:
-                            process_file_for_indexing(inner_file, inner_filename, inner_ext, pinecone_api_key, pinecone_index_name, embedding_model)
+                            process_file_for_indexing(inner_file, inner_filename, inner_ext, pinecone_api_key, pinecone_index_name, embedding_model_provider, embedding_model, openai_api_key)
                         except Exception as e:
                             st.toast(f"Error processing file '{inner_filename}': {e}", icon=":material/folder_zip:")
                             with st.expander("Error details"):
@@ -110,14 +114,14 @@ def run_file_indexing_mode(config: dict, uploaded_files: list):
                 try:
                     process_file_for_indexing(
                         file, file.name, file_extension,
-                        pinecone_api_key, pinecone_index_name, embedding_model
+                        pinecone_api_key, pinecone_index_name, embedding_model_provider, embedding_model, openai_api_key
                     )
                 except Exception as e:
                     st.toast(f"Error processing file '{file.name}': {e}", icon=":material/feedback:")
                     with st.expander("Error details"):
                         st.write(f"An error occurred: {e}")
 
-def process_file_for_indexing(file_obj, filename, file_ext, pinecone_api_key, pinecone_index_name, embedding_model):
+def process_file_for_indexing(file_obj, filename, file_ext, pinecone_api_key, pinecone_index_name, embedding_model_provider, embedding_model, openai_api_key):
     """
     Process a single file for indexing into Pinecone.
 
@@ -127,7 +131,14 @@ def process_file_for_indexing(file_obj, filename, file_ext, pinecone_api_key, pi
         file_ext (str): The file extension.
         pinecone_api_key (str): Pinecone API key.
         pinecone_index_name (str): Pinecone index name.
+        embedding_model_provider (str): Provider for the embedding model, either "OpenAI" or "Ollama".
         embedding_model (str): Embedding model to use.
+        openai_api_key (str): OpenAI API key if using OpenAI embeddings.
+    
+    Raises:
+        ValueError: If any of the required parameters are missing.
+        RuntimeError: If initialization of Pinecone or index fails.
+        Exception: For any other unexpected errors during processing.
     """
     try:
         with st.spinner(f"Processing file {filename}..."):
@@ -149,7 +160,7 @@ def process_file_for_indexing(file_obj, filename, file_ext, pinecone_api_key, pi
             st.status(f"Number of chunks created: {len(all_splits)}", state="complete")
 
             # Initialize Pinecone and index the chunks
-            vector_store = initialize_vectorstore(pinecone_api_key, pinecone_index_name, embedding_model)
+            vector_store = initialize_vectorstore(pinecone_api_key, pinecone_index_name, embedding_model_provider, embedding_model, openai_api_key)
             vector_store.add_documents(documents=all_splits)
             st.toast('Chunks indexed successfully!', icon=":material/cloud_upload:")
             st.status(f"File {filename} indexed successfully at Pinecone!", state="complete")
