@@ -41,16 +41,18 @@ def initialize_llm(llm_api_key: str, stream: bool = True) -> ChatMaritalk:
     )
 
 @tool(response_format="content_and_artifact")
-def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedding_model: str) -> tuple[str, List]:
+def retrieve(query: str, pinecone_api_key: str, pinecone_index_name: str, embedding_model_provider: str, embedding_model: str, openai_api_key: str = None) -> tuple[str, List]:
     """Retrieve relevant documents based on the user query about university files and related subjects."""
     try:
         logger.tool_query("Retrieve with query", query)
 
         # Initialize the vector store
         vector_store = initialize_vectorstore(
-            api_key=pinecone_api_key,
-            index_name=pinecone_index_name,
-            embedding_model=embedding_model
+            pinecone_api_key=pinecone_api_key,
+            pinecone_index_name=pinecone_index_name,
+            embedding_model_provider=embedding_model_provider,
+            embedding_model=embedding_model,
+            openai_api_key=openai_api_key,
         )  
 
         # Perform the similarity search     
@@ -106,7 +108,9 @@ def query_or_respond(state: MessagesState):
     tool_decision_system_prompt = TOOL_DECISION_SYSTEM_PROMPT.format(
         pinecone_api_key=st.session_state.get("pinecone_api_key"),
         pinecone_index_name=st.session_state.get("pinecone_index_name"),
-        embedding_model=st.session_state.get("embedding_model")
+        embedding_model_provider=st.session_state.get("embedding_model_provider"),
+        embedding_model=st.session_state.get("embedding_model"),
+        openai_api_key=st.session_state.get("openai_api_key"),
     )
 
     prompt = [SystemMessage(content=tool_decision_system_prompt)] + trimmed_messages
