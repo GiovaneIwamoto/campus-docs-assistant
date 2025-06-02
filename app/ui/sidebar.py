@@ -84,6 +84,7 @@ def configure_sidebar() -> dict:
         "uploaded_files": uploaded_files,                   
         "pinecone_api_key": pinecone_api_key,
         "pinecone_index_name": pinecone_index_name,
+        "embedding_model_provider": embedding_model_provider,
         "embedding_model": embedding_model,
         "openai_api_key": openai_api_key,
     }
